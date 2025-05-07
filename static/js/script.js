@@ -1,16 +1,16 @@
 // Global variables
 let allProducts = [];
 let filteredProducts = [];
-let activeFilters = {
-    search: '',
-    brand: [],
-    series: [],
-    minPrice: null,
-    maxPrice: null,
-    memorySize: [],
-    clockSpeed: [],
-    ocEdition: []
+
+// Filter registry - keeps track of all initialized filters
+const filterRegistry = {
+    categoryFilters: {},
+    specialFilters: {},
+    rangeFilters: {}
 };
+
+// Active filters - will be initialized based on filter config
+let activeFilters = {};
 
 // DOM elements
 const productsTable = document.getElementById('productsTable');
@@ -25,13 +25,13 @@ const priceSliderRange = document.getElementById('price-slider-range');
 const minPriceLabel = document.getElementById('minPriceLabel');
 const maxPriceLabel = document.getElementById('maxPriceLabel');
 
+// Filtre yöneticisi
+let filterManager = null;
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     // Fetch the product data
     fetchProducts();
-    
-    // Add event listeners
-    setupEventListeners();
     
     // Setup dark mode
     setupDarkMode();
@@ -50,10 +50,8 @@ function fetchProducts() {
             allProducts = data.items;
             filteredProducts = [...allProducts];
             
-            // Setup the page with products data
-            setupFilters();
-            renderProducts();
-            setupPriceRange();
+            // Initialize filter manager with configuration
+            filterManager = new FilterManager(FILTER_CONFIG, allProducts);
         })
         .catch(error => {
             console.error('Error fetching products:', error);
