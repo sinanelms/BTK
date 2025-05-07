@@ -21,8 +21,7 @@ const resetFiltersButton = document.getElementById('resetFilters');
 const sortSelect = document.getElementById('sortSelect');
 const minPriceInput = document.getElementById('minPrice');
 const maxPriceInput = document.getElementById('maxPrice');
-const minPriceRangeSlider = document.getElementById('minPriceRange');
-const maxPriceRangeSlider = document.getElementById('maxPriceRange');
+const priceSliderRange = document.getElementById('price-slider-range');
 const minPriceLabel = document.getElementById('minPriceLabel');
 const maxPriceLabel = document.getElementById('maxPriceLabel');
 
@@ -85,8 +84,6 @@ function setupEventListeners() {
     // Price range inputs
     minPriceInput.addEventListener('change', updatePriceFilter);
     maxPriceInput.addEventListener('change', updatePriceFilter);
-    minPriceRangeSlider.addEventListener('input', handleMinPriceSlider);
-    maxPriceRangeSlider.addEventListener('input', handleMaxPriceSlider);
 }
 
 // Set up the dynamic filters based on product data
@@ -167,23 +164,37 @@ function setupPriceRange() {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     
-    // Set attributes for the min range slider
-    minPriceRangeSlider.min = minPrice;
-    minPriceRangeSlider.max = maxPrice;
-    minPriceRangeSlider.value = minPrice;
-    
-    // Set attributes for the max range slider
-    maxPriceRangeSlider.min = minPrice;
-    maxPriceRangeSlider.max = maxPrice;
-    maxPriceRangeSlider.value = maxPrice;
-    
-    // Set placeholder values
+    // Set placeholder values for inputs
     minPriceInput.placeholder = formatPrice(minPrice);
     maxPriceInput.placeholder = formatPrice(maxPrice);
     
     // Set initial label values
     minPriceLabel.textContent = formatPrice(minPrice) + " TL";
     maxPriceLabel.textContent = formatPrice(maxPrice) + " TL";
+    
+    // Initialize jQuery UI slider
+    $(function() {
+        $("#price-slider-range").slider({
+            range: true,
+            min: minPrice,
+            max: maxPrice,
+            values: [minPrice, maxPrice],
+            slide: function(event, ui) {
+                // Update input fields and labels
+                minPriceInput.value = ui.values[0];
+                maxPriceInput.value = ui.values[1];
+                minPriceLabel.textContent = formatPrice(ui.values[0]) + " TL";
+                maxPriceLabel.textContent = formatPrice(ui.values[1]) + " TL";
+                
+                // Update active filters
+                activeFilters.minPrice = ui.values[0];
+                activeFilters.maxPrice = ui.values[1];
+                
+                // Apply filters
+                applyFilters();
+            }
+        });
+    });
 }
 
 // Handle price filter updates from min/max inputs
@@ -192,50 +203,26 @@ function updatePriceFilter() {
     activeFilters.maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
     
     // Update slider positions if input values change
-    if (activeFilters.minPrice) {
-        minPriceRangeSlider.value = activeFilters.minPrice;
+    if (activeFilters.minPrice !== null && activeFilters.maxPrice !== null) {
+        $("#price-slider-range").slider("values", [
+            activeFilters.minPrice,
+            activeFilters.maxPrice
+        ]);
+    } else if (activeFilters.minPrice !== null) {
+        $("#price-slider-range").slider("values", 0, activeFilters.minPrice);
+    } else if (activeFilters.maxPrice !== null) {
+        $("#price-slider-range").slider("values", 1, activeFilters.maxPrice);
+    }
+    
+    // Update labels
+    if (activeFilters.minPrice !== null) {
         minPriceLabel.textContent = formatPrice(activeFilters.minPrice) + " TL";
     }
     
-    if (activeFilters.maxPrice) {
-        maxPriceRangeSlider.value = activeFilters.maxPrice;
+    if (activeFilters.maxPrice !== null) {
         maxPriceLabel.textContent = formatPrice(activeFilters.maxPrice) + " TL";
     }
     
-    applyFilters();
-}
-
-// Handle minimum price slider input
-function handleMinPriceSlider() {
-    const minValue = parseFloat(minPriceRangeSlider.value);
-    
-    // Make sure min doesn't exceed max
-    const maxValue = parseFloat(maxPriceRangeSlider.value);
-    if (minValue > maxValue) {
-        minPriceRangeSlider.value = maxValue;
-        return;
-    }
-    
-    minPriceInput.value = minValue;
-    minPriceLabel.textContent = formatPrice(minValue) + " TL";
-    activeFilters.minPrice = minValue;
-    applyFilters();
-}
-
-// Handle maximum price slider input
-function handleMaxPriceSlider() {
-    const maxValue = parseFloat(maxPriceRangeSlider.value);
-    
-    // Make sure max doesn't go below min
-    const minValue = parseFloat(minPriceRangeSlider.value);
-    if (maxValue < minValue) {
-        maxPriceRangeSlider.value = minValue;
-        return;
-    }
-    
-    maxPriceInput.value = maxValue;
-    maxPriceLabel.textContent = formatPrice(maxValue) + " TL";
-    activeFilters.maxPrice = maxValue;
     applyFilters();
 }
 
@@ -316,8 +303,8 @@ function resetFilters() {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     
-    minPriceRangeSlider.value = minPrice;
-    maxPriceRangeSlider.value = maxPrice;
+    // Reset slider
+    $("#price-slider-range").slider("values", [minPrice, maxPrice]);
     
     // Update price labels
     minPriceLabel.textContent = formatPrice(minPrice) + " TL";

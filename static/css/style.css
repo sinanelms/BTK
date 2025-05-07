@@ -47,9 +47,41 @@ body {
     color: #6c757d;
 }
 
-#minPriceRange, #maxPriceRange {
-    margin-left: 5px;
-    width: calc(100% - 35px);
+.slider-container {
+    padding: 0 10px;
+}
+
+#price-slider-range {
+    height: 5px;
+    background: #e9ecef;
+    border: none;
+    border-radius: 3px;
+    position: relative;
+}
+
+#price-slider-range .ui-slider-range {
+    background: #0d6efd;
+    height: 100%;
+    position: absolute;
+}
+
+#price-slider-range .ui-slider-handle {
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border: 2px solid #0d6efd;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: -6px;
+    margin-left: -8px;
+    z-index: 2;
+}
+
+#price-slider-range .ui-slider-handle:focus,
+#price-slider-range .ui-slider-handle:active {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
 
 /* Product Card Styles */
