@@ -21,7 +21,10 @@ const resetFiltersButton = document.getElementById('resetFilters');
 const sortSelect = document.getElementById('sortSelect');
 const minPriceInput = document.getElementById('minPrice');
 const maxPriceInput = document.getElementById('maxPrice');
-const priceRangeSlider = document.getElementById('priceRange');
+const minPriceRangeSlider = document.getElementById('minPriceRange');
+const maxPriceRangeSlider = document.getElementById('maxPriceRange');
+const minPriceLabel = document.getElementById('minPriceLabel');
+const maxPriceLabel = document.getElementById('maxPriceLabel');
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,7 +85,8 @@ function setupEventListeners() {
     // Price range inputs
     minPriceInput.addEventListener('change', updatePriceFilter);
     maxPriceInput.addEventListener('change', updatePriceFilter);
-    priceRangeSlider.addEventListener('input', handlePriceSlider);
+    minPriceRangeSlider.addEventListener('input', handleMinPriceSlider);
+    maxPriceRangeSlider.addEventListener('input', handleMaxPriceSlider);
 }
 
 // Set up the dynamic filters based on product data
@@ -163,28 +167,75 @@ function setupPriceRange() {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     
-    // Set attributes for the range slider
-    priceRangeSlider.min = minPrice;
-    priceRangeSlider.max = maxPrice;
-    priceRangeSlider.value = maxPrice;
+    // Set attributes for the min range slider
+    minPriceRangeSlider.min = minPrice;
+    minPriceRangeSlider.max = maxPrice;
+    minPriceRangeSlider.value = minPrice;
+    
+    // Set attributes for the max range slider
+    maxPriceRangeSlider.min = minPrice;
+    maxPriceRangeSlider.max = maxPrice;
+    maxPriceRangeSlider.value = maxPrice;
     
     // Set placeholder values
     minPriceInput.placeholder = formatPrice(minPrice);
     maxPriceInput.placeholder = formatPrice(maxPrice);
+    
+    // Set initial label values
+    minPriceLabel.textContent = formatPrice(minPrice) + " TL";
+    maxPriceLabel.textContent = formatPrice(maxPrice) + " TL";
 }
 
 // Handle price filter updates from min/max inputs
 function updatePriceFilter() {
     activeFilters.minPrice = minPriceInput.value ? parseFloat(minPriceInput.value) : null;
     activeFilters.maxPrice = maxPriceInput.value ? parseFloat(maxPriceInput.value) : null;
+    
+    // Update slider positions if input values change
+    if (activeFilters.minPrice) {
+        minPriceRangeSlider.value = activeFilters.minPrice;
+        minPriceLabel.textContent = formatPrice(activeFilters.minPrice) + " TL";
+    }
+    
+    if (activeFilters.maxPrice) {
+        maxPriceRangeSlider.value = activeFilters.maxPrice;
+        maxPriceLabel.textContent = formatPrice(activeFilters.maxPrice) + " TL";
+    }
+    
     applyFilters();
 }
 
-// Handle price slider input
-function handlePriceSlider() {
-    const value = parseFloat(priceRangeSlider.value);
-    maxPriceInput.value = value;
-    activeFilters.maxPrice = value;
+// Handle minimum price slider input
+function handleMinPriceSlider() {
+    const minValue = parseFloat(minPriceRangeSlider.value);
+    
+    // Make sure min doesn't exceed max
+    const maxValue = parseFloat(maxPriceRangeSlider.value);
+    if (minValue > maxValue) {
+        minPriceRangeSlider.value = maxValue;
+        return;
+    }
+    
+    minPriceInput.value = minValue;
+    minPriceLabel.textContent = formatPrice(minValue) + " TL";
+    activeFilters.minPrice = minValue;
+    applyFilters();
+}
+
+// Handle maximum price slider input
+function handleMaxPriceSlider() {
+    const maxValue = parseFloat(maxPriceRangeSlider.value);
+    
+    // Make sure max doesn't go below min
+    const minValue = parseFloat(minPriceRangeSlider.value);
+    if (maxValue < minValue) {
+        maxPriceRangeSlider.value = minValue;
+        return;
+    }
+    
+    maxPriceInput.value = maxValue;
+    maxPriceLabel.textContent = formatPrice(maxValue) + " TL";
+    activeFilters.maxPrice = maxValue;
     applyFilters();
 }
 
@@ -259,7 +310,18 @@ function resetFilters() {
     searchInput.value = '';
     minPriceInput.value = '';
     maxPriceInput.value = '';
-    priceRangeSlider.value = priceRangeSlider.max;
+    
+    // Reset price range sliders
+    const prices = allProducts.map(p => p.price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    
+    minPriceRangeSlider.value = minPrice;
+    maxPriceRangeSlider.value = maxPrice;
+    
+    // Update price labels
+    minPriceLabel.textContent = formatPrice(minPrice) + " TL";
+    maxPriceLabel.textContent = formatPrice(maxPrice) + " TL";
     
     // Uncheck all checkboxes
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
