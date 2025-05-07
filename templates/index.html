@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekran Kartı Fiyatları</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="bg-light py-3 mb-4">
+            <div class="container">
+                <h1 class="display-5 fw-bold">Ekran Kartı Fiyatları</h1>
+            </div>
+        </header>
+
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-md-3 col-lg-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Öne Çıkan Filtreler</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6>Kategoride Ara</h6>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="searchInput" class="form-control" placeholder="arama yap...">
+                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Brand Filter -->
+                        <div class="filter-group mb-4" id="brandFilter">
+                            <h6>Markalar</h6>
+                            <div class="filter-checkboxes"></div>
+                        </div>
+
+                        <!-- Series Filter -->
+                        <div class="filter-group mb-4" id="seriesFilter">
+                            <h6>Seriler</h6>
+                            <div class="filter-checkboxes"></div>
+                        </div>
+
+                        <!-- Price Range Filter -->
+                        <div class="filter-group mb-4" id="priceFilter">
+                            <h6>Fiyat Aralığı</h6>
+                            <div class="price-range">
+                                <div class="d-flex justify-content-between">
+                                    <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Min">
+                                    <span class="mx-2">-</span>
+                                    <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Max">
+                                </div>
+                                <div class="mt-2">
+                                    <input type="range" class="form-range" id="priceRange" min="0" max="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memory Size Filter -->
+                        <div class="filter-group mb-4" id="memorySizeFilter">
+                            <h6>Bellek Boyutu</h6>
+                            <div class="filter-checkboxes"></div>
+                        </div>
+
+                        <!-- Clock Speed Filter -->
+                        <div class="filter-group mb-4" id="clockSpeedFilter">
+                            <h6>Saat Hızı</h6>
+                            <div class="filter-checkboxes"></div>
+                        </div>
+
+                        <!-- OC Edition Filter -->
+                        <div class="filter-group mb-4" id="ocEditionFilter">
+                            <h6>OC Edisyon</h6>
+                            <div class="filter-checkboxes"></div>
+                        </div>
+
+                        <!-- Reset Filters -->
+                        <button class="btn btn-outline-secondary w-100" id="resetFilters">
+                            <i class="fas fa-sync-alt me-2"></i>Filtreleri Sıfırla
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9 col-lg-9">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Ürünler</h5>
+                        <div class="dropdown">
+                            <select class="form-select" id="sortSelect">
+                                <option value="default">Listele/Sırala</option>
+                                <option value="price-asc">Fiyat (Artan)</option>
+                                <option value="price-desc">Fiyat (Azalan)</option>
+                                <option value="performance-desc">Performans (Yüksek-Düşük)</option>
+                                <option value="clock-desc">Saat Hızı (Yüksek-Düşük)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Ürün Adı</th>
+                                        <th scope="col">Fiyat</th>
+                                        <th scope="col">Bellek Boyutu</th>
+                                        <th scope="col">Saat Hızı</th>
+                                        <th scope="col">Teknik Puan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTable">
+                                    <!-- Products will be loaded here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Grid View (for mobile) -->
+                <div id="productsGrid" class="row row-cols-1 row-cols-md-2 g-4 d-md-none">
+                    <!-- Products grid will be loaded here for mobile view -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for product card (hidden, used by JS) -->
+    <template id="productCardTemplate">
+        <div class="col">
+            <div class="card h-100 product-card">
+                <img src="" class="card-img-top product-image" alt="">
+                <div class="card-body">
+                    <h5 class="card-title product-name"></h5>
+                    <p class="card-text product-model"></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fs-5 fw-bold product-price"></span>
+                        <span class="badge bg-success performance-badge"></span>
+                    </div>
+                    <div class="specs mt-2">
+                        <span class="badge bg-light text-dark memory-size"></span>
+                        <span class="badge bg-light text-dark clock-speed"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
