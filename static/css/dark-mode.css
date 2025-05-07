@@ -1,0 +1,119 @@
+/* Dark Mode CSS */
+
+:root {
+    --dark-bg-color: #121212;
+    --dark-card-bg: #1e1e1e;
+    --dark-text-color: #e4e4e4;
+    --dark-border-color: #333;
+    --dark-hover-color: #252525;
+    --dark-input-bg: #2d2d2d;
+    --dark-primary-color: #87cefa; /* light blue for primary items */
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .bg-light {
+    background-color: var(--dark-card-bg) !important;
+}
+
+body.dark-mode .card {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .card-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .table {
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .table-hover>tbody>tr:hover {
+    background-color: var(--dark-hover-color);
+}
+
+body.dark-mode .table th {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: var(--dark-text-color);
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--dark-hover-color);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .btn-outline-primary {
+    color: var(--dark-primary-color);
+    border-color: var(--dark-primary-color);
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background-color: var(--dark-primary-color);
+    color: var(--dark-bg-color);
+}
+
+body.dark-mode .badge.bg-light.text-dark {
+    background-color: var(--dark-input-bg) !important;
+    color: var(--dark-text-color) !important;
+}
+
+body.dark-mode .price-label {
+    color: #aaa;
+}
+
+body.dark-mode .ui-widget-content {
+    background: #444;
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .ui-widget-header {
+    background: var(--dark-primary-color);
+}
+
+body.dark-mode .ui-slider-handle {
+    background: #fff !important;
+    border-color: var(--dark-primary-color) !important;
+}
+
+body.dark-mode .text-muted {
+    color: #aaa !important;
+}
+
+/* Override badge colors for better visibility in dark mode */
+body.dark-mode .badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+body.dark-mode .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+/* Empty state styling for dark mode */
+body.dark-mode .empty-state {
+    color: #aaa;
+}
+
+body.dark-mode .empty-state i {
+    color: #555;
+}

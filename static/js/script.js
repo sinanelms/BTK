@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listeners
     setupEventListeners();
+    
+    // Setup dark mode
+    setupDarkMode();
 });
 
 // Fetch products data from API
@@ -468,4 +471,48 @@ function showErrorState(message) {
             </div>
         </div>
     `;
+}
+
+// Setup dark mode functionality
+function setupDarkMode() {
+    const themeToggle = document.getElementById('themeToggle');
+    const darkIcon = document.getElementById('darkIcon');
+    const lightIcon = document.getElementById('lightIcon');
+    const darkModeStylesheet = document.getElementById('dark-mode-style');
+    const body = document.body;
+    
+    // Check if user has a preference saved
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    
+    // Initialize based on saved preference
+    if (isDarkMode) {
+        enableDarkMode();
+    }
+    
+    // Toggle dark/light mode
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('dark-mode')) {
+            disableDarkMode();
+        } else {
+            enableDarkMode();
+        }
+    });
+    
+    // Function to enable dark mode
+    function enableDarkMode() {
+        body.classList.add('dark-mode');
+        darkModeStylesheet.disabled = false;
+        darkIcon.classList.add('d-none');
+        lightIcon.classList.remove('d-none');
+        localStorage.setItem('darkMode', 'true');
+    }
+    
+    // Function to disable dark mode
+    function disableDarkMode() {
+        body.classList.remove('dark-mode');
+        darkModeStylesheet.disabled = true;
+        darkIcon.classList.remove('d-none');
+        lightIcon.classList.add('d-none');
+        localStorage.setItem('darkMode', 'false');
+    }
 }
