@@ -94,14 +94,27 @@ class AnalyticsManager {
      */
     loadContactsList() {
         const contactSelect = document.getElementById('contactSelect');
-        const uniqueContacts = [...new Set(this.callRecords.map(record => record.name))].filter(name => name);
         
+        // Önce tüm seçenekleri temizleyelim (ilk seçeneği hariç)
+        while (contactSelect.options.length > 1) {
+            contactSelect.remove(1);
+        }
+        
+        // Kişilerin isimlerini al (İsim Soyisim alanından)
+        const uniqueContacts = [...new Set(this.callRecords
+            .map(record => record['İsim Soyisim ( Diğer Numara)'])
+            .filter(name => name && name.trim() !== ''))
+        ];
+        
+        // Alfabetik olarak sırala
         uniqueContacts.sort().forEach(name => {
             const option = document.createElement('option');
             option.value = name;
             option.textContent = name;
             contactSelect.appendChild(option);
         });
+        
+        console.log("Kişi listesi yüklendi:", uniqueContacts.length, "kişi bulundu");
     }
     
     /**
@@ -846,7 +859,7 @@ class AnalyticsManager {
         if (!type) return 'bg-secondary';
         
         if (type.includes('Gelen')) return 'bg-primary';
-        if (type.includes('Giden')) return 'bg-success';
+        if (type.includes('aradı')) return 'bg-success';
         if (type.includes('Cevapsız')) return 'bg-danger';
         if (type.includes('Mesaj')) return 'bg-info';
         
