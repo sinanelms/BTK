@@ -31,7 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Fetch call records data from API
 function fetchProducts() {
-    fetch('/api/data')
+    // URL'den csv_path parametresini al (eğer varsa)
+    const urlParams = new URLSearchParams(window.location.search);
+    const csvPath = urlParams.get('csv_path');
+    
+    // API endpoint'ini oluştur (csv_path varsa ekle)
+    const apiUrl = csvPath ? `/api/data?csv_path=${encodeURIComponent(csvPath)}` : '/api/data';
+    
+    fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
