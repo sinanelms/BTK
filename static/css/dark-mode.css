@@ -34,11 +34,13 @@ body.dark-mode .table {
 }
 
 body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(40, 40, 40, 0.6);
+    color: #fff;
 }
 
 body.dark-mode .table-striped>tbody>tr:nth-of-type(even) {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(60, 60, 60, 0.5);
+    color: #fff;
 }
 
 body.dark-mode .table-hover>tbody>tr:hover {
@@ -52,6 +54,12 @@ body.dark-mode .table th {
 
 body.dark-mode .table td {
     border-color: #444;
+    color: #fff;
+}
+
+/* Tablonun tarih sütunu için özel stil */
+body.dark-mode .table td:nth-child(2) {
+    color: #8be9fd;
 }
 
 body.dark-mode .form-control,
