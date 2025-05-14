@@ -18,10 +18,20 @@
         <header class="bg-light py-3 mb-4">
             <div class="container d-flex justify-content-between align-items-center">
                 <h1 class="display-5 fw-bold">Telefon Arama Kayıtları</h1>
-                <button id="themeToggle" class="btn btn-outline-primary">
-                    <i class="fas fa-moon" id="darkIcon"></i>
-                    <i class="fas fa-sun d-none" id="lightIcon"></i>
-                </button>
+                <div class="d-flex align-items-center">
+                    <div class="btn-group me-3" role="group" aria-label="Görünüm Seçenekleri">
+                        <button type="button" class="btn btn-primary active" id="tableViewBtn">
+                            <i class="fas fa-table me-1"></i> Tablo
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="analysisViewBtn">
+                            <i class="fas fa-chart-bar me-1"></i> Analiz
+                        </button>
+                    </div>
+                    <button id="themeToggle" class="btn btn-outline-primary">
+                        <i class="fas fa-moon" id="darkIcon"></i>
+                        <i class="fas fa-sun d-none" id="lightIcon"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -106,77 +116,207 @@
 
             <!-- Main Content Area -->
             <div class="col-md-9 col-lg-9">
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Arama Kayıtları</h5>
-                        <div class="d-flex gap-2">
-                            <div class="dropdown me-2">
-                                <select class="form-select" id="pageSizeSelect">
-                                    <option value="25">25 Kayıt</option>
-                                    <option value="50">50 Kayıt</option>
-                                    <option value="100">100 Kayıt</option>
-                                    <option value="0">Tümünü Göster</option>
-                                </select>
+                <!-- Table View -->
+                <div id="tableView">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Arama Kayıtları</h5>
+                            <div class="d-flex gap-2">
+                                <div class="dropdown me-2">
+                                    <select class="form-select" id="pageSizeSelect">
+                                        <option value="25">25 Kayıt</option>
+                                        <option value="50">50 Kayıt</option>
+                                        <option value="100">100 Kayıt</option>
+                                        <option value="0">Tümünü Göster</option>
+                                    </select>
+                                </div>
+                                <div class="dropdown">
+                                    <select class="form-select" id="sortSelect">
+                                        <option value="default">Listele/Sırala</option>
+                                        <option value="date-asc">Tarih (Eskiden Yeniye)</option>
+                                        <option value="date-desc">Tarih (Yeniden Eskiye)</option>
+                                        <option value="duration-asc">Süre (Artan)</option>
+                                        <option value="duration-desc">Süre (Azalan)</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="dropdown">
-                                <select class="form-select" id="sortSelect">
-                                    <option value="default">Listele/Sırala</option>
-                                    <option value="date-asc">Tarih (Eskiden Yeniye)</option>
-                                    <option value="date-desc">Tarih (Yeniden Eskiye)</option>
-                                    <option value="duration-asc">Süre (Artan)</option>
-                                    <option value="duration-desc">Süre (Azalan)</option>
-                                </select>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Sıra No</th>
+                                            <th scope="col">Tarih</th>
+                                            <th scope="col">Tip</th>
+                                            <th scope="col">Aranan Numara</th>
+                                            <th scope="col">İsim Soyisim</th>
+                                            <th scope="col">Süre (sn)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsTable">
+                                        <!-- Call records will be loaded here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination Controls -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="pagination-info">
+                                    <span id="paginationInfo">Gösteriliyor: 1-25 / 100</span>
+                                </div>
+                                <nav>
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <button class="page-link" id="prevPage" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </button>
+                                        </li>
+                                        <li class="page-item">
+                                            <span class="page-link" id="currentPage">1</span>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" id="nextPage" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Sıra No</th>
-                                        <th scope="col">Tarih</th>
-                                        <th scope="col">Tip</th>
-                                        <th scope="col">Aranan Numara</th>
-                                        <th scope="col">İsim Soyisim</th>
-                                        <th scope="col">Süre (sn)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="productsTable">
-                                    <!-- Call records will be loaded here dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination Controls -->
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="pagination-info">
-                                <span id="paginationInfo">Gösteriliyor: 1-25 / 100</span>
-                            </div>
-                            <nav>
-                                <ul class="pagination">
-                                    <li class="page-item">
-                                        <button class="page-link" id="prevPage" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </button>
-                                    </li>
-                                    <li class="page-item">
-                                        <span class="page-link" id="currentPage">1</span>
-                                    </li>
-                                    <li class="page-item">
-                                        <button class="page-link" id="nextPage" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
+
+                    <!-- Call Records Grid View (for mobile) -->
+                    <div id="productsGrid" class="row row-cols-1 row-cols-md-2 g-4 d-md-none">
+                        <!-- Call records grid will be loaded here for mobile view -->
                     </div>
                 </div>
-
-                <!-- Call Records Grid View (for mobile) -->
-                <div id="productsGrid" class="row row-cols-1 row-cols-md-2 g-4 d-md-none">
-                    <!-- Call records grid will be loaded here for mobile view -->
+                
+                <!-- Analysis View -->
+                <div id="analysisView" class="d-none">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header py-3 bg-light">
+                            <h5 class="m-0 fw-bold">Arama İstatistikleri</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="analysisTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Genel Bakış</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="time-tab" data-bs-toggle="tab" data-bs-target="#time-analysis" type="button" role="tab" aria-controls="time-analysis" aria-selected="false">Zaman Analizi</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts-analysis" type="button" role="tab" aria-controls="contacts-analysis" aria-selected="false">Kişi Analizi</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="duration-tab" data-bs-toggle="tab" data-bs-target="#duration-analysis" type="button" role="tab" aria-controls="duration-analysis" aria-selected="false">Süre Analizi</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-analysis" type="button" role="tab" aria-controls="timeline-analysis" aria-selected="false">Zaman Çizelgesi</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content pt-4" id="analysisTabContent">
+                                <!-- Genel Bakış -->
+                                <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card mb-4">
+                                                <div class="card-header">Arama Tiplerine Göre Dağılım</div>
+                                                <div class="card-body">
+                                                    <canvas id="callTypeChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card mb-4">
+                                                <div class="card-header">Özet İstatistikler</div>
+                                                <div class="card-body">
+                                                    <div id="statisticsSummary">
+                                                        <!-- Dinamik olarak yüklenecek -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Zaman Analizi -->
+                                <div class="tab-pane fade" id="time-analysis" role="tabpanel" aria-labelledby="time-tab">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-4">
+                                            <div class="card">
+                                                <div class="card-header">Günlük/Haftalık/Aylık Arama Dağılımı</div>
+                                                <div class="card-body">
+                                                    <div class="btn-group mb-3" role="group">
+                                                        <button type="button" class="btn btn-outline-primary active" id="dailyBtn">Günlük</button>
+                                                        <button type="button" class="btn btn-outline-primary" id="weeklyBtn">Haftalık</button>
+                                                        <button type="button" class="btn btn-outline-primary" id="monthlyBtn">Aylık</button>
+                                                    </div>
+                                                    <canvas id="timeDistributionChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Kişi Analizi -->
+                                <div class="tab-pane fade" id="contacts-analysis" role="tabpanel" aria-labelledby="contacts-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card">
+                                                <div class="card-header">En Çok Görüşülen Kişiler</div>
+                                                <div class="card-body">
+                                                    <canvas id="topContactsChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card">
+                                                <div class="card-header">En Uzun Görüşmeler</div>
+                                                <div class="card-body">
+                                                    <canvas id="longestCallsChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Süre Analizi -->
+                                <div class="tab-pane fade" id="duration-analysis" role="tabpanel" aria-labelledby="duration-tab">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-4">
+                                            <div class="card">
+                                                <div class="card-header">Arama Sürelerinin Dağılımı</div>
+                                                <div class="card-body">
+                                                    <canvas id="durationDistributionChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Zaman Çizelgesi -->
+                                <div class="tab-pane fade" id="timeline-analysis" role="tabpanel" aria-labelledby="timeline-tab">
+                                    <div class="mb-3">
+                                        <label for="contactSelect" class="form-label">Kişi Seçin:</label>
+                                        <select class="form-select" id="contactSelect">
+                                            <option value="">Tüm Kişiler</option>
+                                            <!-- Dinamik olarak yüklenecek -->
+                                        </select>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">Arama Geçmişi Zaman Çizelgesi</div>
+                                        <div class="card-body">
+                                            <div id="timelineContainer">
+                                                <!-- Dinamik olarak yüklenecek -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -209,12 +349,17 @@
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
     
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Filter Configuration -->
     <script src="{{ url_for('static', filename='js/filter-config.js') }}"></script>
     <!-- Filter Module -->
     <script src="{{ url_for('static', filename='js/filter-module.js') }}"></script>
+    <!-- Analytics Module -->
+    <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
