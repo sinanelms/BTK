@@ -59,6 +59,9 @@ class FilterManager {
         
         // Aralık filtreleri (slider, min-max)
         this.setupRangeFilters();
+        
+        // Tarih aralığı filtreleri
+        this.setupDateRangeFilters();
     }
     
     /**
@@ -130,7 +133,7 @@ class FilterManager {
             this.filterRegistry.rangeFilters[filter.key] = { ...filter };
             
             // Min/Max değerleri bul
-            const values = this.products.map(p => p[filter.dataField]);
+            const values = this.products.map(p => p[filter.dataField]).filter(v => v !== undefined && v !== null);
             const minValue = Math.min(...values);
             const maxValue = Math.max(...values);
             
@@ -175,6 +178,56 @@ class FilterManager {
             // Input olayları için dinleyiciler ekle
             minInput.addEventListener('change', () => this.updateRangeFilter(filter));
             maxInput.addEventListener('change', () => this.updateRangeFilter(filter));
+        });
+    }
+    
+    /**
+     * Tarih aralığı filtrelerini oluşturur
+     */
+    setupDateRangeFilters() {
+        if (!this.config.dateRangeFilters) return;
+        
+        this.config.dateRangeFilters.forEach(filter => {
+            // Aktif filtreler için başlangıç ve bitiş tarihlerini oluştur
+            this.activeFilters[filter.startKey] = null;
+            this.activeFilters[filter.endKey] = null;
+            
+            // Filter container'ını al veya oluştur
+            let container = document.getElementById(filter.id);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = filter.id;
+                container.className = 'filter-group mb-4';
+                container.innerHTML = `
+                    <h6>${filter.displayName}</h6>
+                    <div class="date-range">
+                        <div class="mb-2">
+                            <label class="form-label small">Başlangıç Tarihi</label>
+                            <input type="date" id="start${filter.key.charAt(0).toUpperCase() + filter.key.slice(1)}" class="form-control form-control-sm">
+                        </div>
+                        <div>
+                            <label class="form-label small">Bitiş Tarihi</label>
+                            <input type="date" id="end${filter.key.charAt(0).toUpperCase() + filter.key.slice(1)}" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                `;
+                document.getElementById('dynamicFiltersContainer').appendChild(container);
+            }
+            
+            // Başlangıç ve bitiş tarihlerini al
+            const startDateInput = document.getElementById(`start${filter.key.charAt(0).toUpperCase() + filter.key.slice(1)}`);
+            const endDateInput = document.getElementById(`end${filter.key.charAt(0).toUpperCase() + filter.key.slice(1)}`);
+            
+            // Olay dinleyicilerini ekle
+            startDateInput.addEventListener('change', () => {
+                this.activeFilters[filter.startKey] = startDateInput.value ? new Date(startDateInput.value) : null;
+                this.applyFilters();
+            });
+            
+            endDateInput.addEventListener('change', () => {
+                this.activeFilters[filter.endKey] = endDateInput.value ? new Date(endDateInput.value) : null;
+                this.applyFilters();
+            });
         });
     }
     
@@ -341,7 +394,7 @@ class FilterManager {
             if (this.activeFilters.search) {
                 let matchesSearch = false;
                 for (const field of searchConfig.searchFields) {
-                    if (product[field].toLowerCase().includes(this.activeFilters.search)) {
+                    if (product[field] && product[field].toString().toLowerCase().includes(this.activeFilters.search)) {
                         matchesSearch = true;
                         break;
                     }
@@ -368,13 +421,35 @@ class FilterManager {
             
             // Aralık filtreleri
             for (const filter of this.config.rangeFilters) {
-                if (this.activeFilters[filter.minKey] && 
-                    product[filter.dataField] < this.activeFilters[filter.minKey]) {
+                if (this.activeFilters[filter.minKey] && product[filter.dataField] !== undefined &&
+                    parseFloat(product[filter.dataField]) < this.activeFilters[filter.minKey]) {
                     return false;
                 }
-                if (this.activeFilters[filter.maxKey] && 
-                    product[filter.dataField] > this.activeFilters[filter.maxKey]) {
+                if (this.activeFilters[filter.maxKey] && product[filter.dataField] !== undefined &&
+                    parseFloat(product[filter.dataField]) > this.activeFilters[filter.maxKey]) {
                     return false;
+                }
+            }
+            
+            // Tarih aralığı filtreleri
+            if (this.config.dateRangeFilters) {
+                for (const filter of this.config.dateRangeFilters) {
+                    const productDate = new Date(product[filter.dataField]);
+                    
+                    if (this.activeFilters[filter.startKey] && 
+                        productDate < this.activeFilters[filter.startKey]) {
+                        return false;
+                    }
+                    
+                    if (this.activeFilters[filter.endKey]) {
+                        // Bitiş tarihini günün sonuna ayarla (23:59:59)
+                        const endDate = new Date(this.activeFilters[filter.endKey]);
+                        endDate.setHours(23, 59, 59, 999);
+                        
+                        if (productDate > endDate) {
+                            return false;
+                        }
+                    }
                 }
             }
             
@@ -403,7 +478,7 @@ class FilterManager {
     }
     
     /**
-     * Ürün listesini render eder
+     * Arama kaydı listesini render eder
      */
     renderProducts() {
         if (this.filteredProducts.length === 0) {
@@ -415,29 +490,33 @@ class FilterManager {
         this.productsTable.innerHTML = '';
         this.productsGrid.innerHTML = '';
         
-        // Her ürünü render et
-        this.filteredProducts.forEach(product => {
+        // Her arama kaydını render et
+        this.filteredProducts.forEach(record => {
             // Tablo görünümüne ekle (masaüstü)
             const tableRow = document.createElement('tr');
-            tableRow.className = 'product-row';
+            tableRow.className = 'record-row';
+            
+            // Görüşme türüne göre renk belirleme
+            let typeColor = "primary";
+            if (record['TİP'].includes("Mesaj")) {
+                typeColor = "info";
+            } else if (record['TİP'].includes("Görüntülü")) {
+                typeColor = "success";
+            } else if (record['TİP'].includes("Ödemeli")) {
+                typeColor = "warning";
+            }
+            
+            // Tarih formatı
+            const recordDate = new Date(record['TARİH']);
+            const formattedDate = recordDate.toLocaleString('tr-TR');
+            
             tableRow.innerHTML = `
-                <td>
-                    <div class="d-flex align-items-center">
-                        <img src="${product.image_url}" alt="${product.product_name}" class="table-product-image">
-                        <div>
-                            <div class="fw-bold">${product.product_name}</div>
-                            <small class="text-muted">${product.model}</small>
-                        </div>
-                    </div>
-                </td>
-                <td class="fw-bold text-danger">${this.formatValue(product.price, 'currency')} ${product.currency}</td>
-                <td>${product.memory_size}</td>
-                <td>${product.clock_speed}</td>
-                <td>
-                    <div class="badge bg-${product.performance_score >= 95 ? 'success' : 'warning'} rounded-circle p-2">
-                        ${product.performance_score}
-                    </div>
-                </td>
+                <td>${record['SIRA NO']}</td>
+                <td>${formattedDate}</td>
+                <td><span class="badge bg-${typeColor}">${record['TİP']}</span></td>
+                <td>${record['DİĞER NUMARA']}</td>
+                <td>${record['İsim Soyisim ( Diğer Numara)']}</td>
+                <td>${record['salt_sure']} sn</td>
             `;
             this.productsTable.appendChild(tableRow);
             
@@ -446,18 +525,17 @@ class FilterManager {
             const clone = document.importNode(template.content, true);
             
             // Verileri doldur
-            clone.querySelector('.product-image').src = product.image_url;
-            clone.querySelector('.product-image').alt = product.product_name;
-            clone.querySelector('.product-name').textContent = product.product_name;
-            clone.querySelector('.product-model').textContent = product.model;
-            clone.querySelector('.product-price').textContent = `${this.formatValue(product.price, 'currency')} ${product.currency}`;
+            clone.querySelector('.person-name').textContent = record['İsim Soyisim ( Diğer Numara)'];
+            clone.querySelector('.phone-number').textContent = record['DİĞER NUMARA'];
+            clone.querySelector('.date-time').textContent = formattedDate;
+            clone.querySelector('.tc-number').textContent = 'TC: ' + record['TC Kimlik No (Diğer Numara)'];
             
-            const badge = clone.querySelector('.performance-badge');
-            badge.textContent = product.performance_score;
-            badge.classList.add(product.performance_score >= 95 ? 'bg-success' : 'bg-warning');
+            const callType = clone.querySelector('.call-type');
+            callType.textContent = record['TİP'];
+            callType.classList.add(`bg-${typeColor}`);
             
-            clone.querySelector('.memory-size').textContent = product.memory_size;
-            clone.querySelector('.clock-speed').textContent = product.clock_speed;
+            const durationBadge = clone.querySelector('.duration-badge');
+            durationBadge.textContent = record['salt_sure'] + ' sn';
             
             this.productsGrid.appendChild(clone);
         });
@@ -533,6 +611,14 @@ class FilterManager {
             this.activeFilters[filter.minKey] = null;
             this.activeFilters[filter.maxKey] = null;
         });
+        
+        // Tarih aralığı filtrelerini sıfırla
+        if (this.config.dateRangeFilters) {
+            this.config.dateRangeFilters.forEach(filter => {
+                this.activeFilters[filter.startKey] = null;
+                this.activeFilters[filter.endKey] = null;
+            });
+        }
     }
     
     /**
@@ -541,7 +627,7 @@ class FilterManager {
     showEmptyState() {
         this.productsTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <div class="empty-state">
                         <i class="fas fa-search"></i>
                         <h5>Arama Sonucu Bulunamadı</h5>
@@ -572,7 +658,7 @@ class FilterManager {
     showErrorState(message) {
         this.productsTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <h5>Hata Oluştu</h5>

@@ -1,5 +1,6 @@
 import os
 import json
+import csv
 import logging
 from flask import Flask, render_template, jsonify
 
@@ -10,11 +11,22 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key")
 
-# Load the data from JSON file
+# Load the data from CSV file
 def load_data():
     try:
-        with open('static/data/graphics_cards.json', 'r', encoding='utf-8') as file:
-            return json.load(file)
+        data_path = 'static/data/call_records.csv'
+        items = []
+        
+        with open(data_path, 'r', encoding='utf-8') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                # Convert numeric fields
+                if row.get('salt_sure'):
+                    row['salt_sure'] = int(row['salt_sure'])
+                if row.get('SIRA NO'):
+                    row['SIRA NO'] = int(row['SIRA NO'])
+                items.append(row)
+        return {"items": items}
     except Exception as e:
         logging.error(f"Error loading data: {e}")
         return {"items": []}

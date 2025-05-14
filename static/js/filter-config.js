@@ -8,55 +8,46 @@ const FILTER_CONFIG = {
     // Kategorik filtreler (checkbox filtreleri)
     categoryFilters: [
         {
-            id: 'brandFilter',          // HTML container ID
-            key: 'brand',               // Veri alanı ve aktif filtreler için kullanılacak anahtar
-            displayName: 'Markalar',    // Filtre başlığı
-            dataField: 'brand'          // Filtrelenecek veri alanı (ürün özelliği)
+            id: 'tipFilter',          // HTML container ID
+            key: 'callType',          // Veri alanı ve aktif filtreler için kullanılacak anahtar
+            displayName: 'Arama Tipi', // Filtre başlığı
+            dataField: 'TİP'          // Filtrelenecek veri alanı (CSV sütun adı)
         },
         {
-            id: 'seriesFilter',
-            key: 'series',
-            displayName: 'Seriler',
-            dataField: 'series'
-        },
-        {
-            id: 'memorySizeFilter',
-            key: 'memorySize',
-            displayName: 'Bellek Boyutu',
-            dataField: 'memory_size'
-        },
-        {
-            id: 'clockSpeedFilter',
-            key: 'clockSpeed',
-            displayName: 'Saat Hızı',
-            dataField: 'clock_speed'
+            id: 'nameFilter',
+            key: 'personName',
+            displayName: 'İsim Soyisim',
+            dataField: 'İsim Soyisim ( Diğer Numara)'
         }
     ],
     
-    // Özel filtreler (örneğin, boolean değerler için özel işleme gerektiren filtreler)
-    specialFilters: [
-        {
-            id: 'ocEditionFilter',
-            key: 'ocEdition',
-            displayName: 'OC Edisyon',
-            type: 'boolean',
-            trueLabel: 'OC Edisyon',
-            falseLabel: 'Standart Edisyon',
-            dataField: 'oc_edition'
-        }
-    ],
+    // Özel filtreler
+    specialFilters: [],
     
-    // Aralık filtreleri (min-max değerli filtreler, örneğin fiyat aralığı)
+    // Aralık filtreleri (min-max değerli filtreler)
     rangeFilters: [
         {
-            id: 'priceFilter',
-            key: 'price',
-            displayName: 'Fiyat Aralığı',
-            minKey: 'minPrice',   // Aktif filtreler için min değer anahtarı
-            maxKey: 'maxPrice',   // Aktif filtreler için max değer anahtarı
-            dataField: 'price',   // Filtrelenecek veri alanı
-            format: 'currency',   // Formatlamak için kullanılacak format türü
-            suffix: 'TL'         // Değer sonuna eklenecek metin
+            id: 'durationFilter',
+            key: 'duration',
+            displayName: 'Görüşme Süresi',
+            minKey: 'minDuration',      // Aktif filtreler için min değer anahtarı
+            maxKey: 'maxDuration',      // Aktif filtreler için max değer anahtarı
+            dataField: 'salt_sure',     // Filtrelenecek veri alanı
+            format: 'number',           // Formatlamak için kullanılacak format türü
+            suffix: 'sn'                // Değer sonuna eklenecek metin
+        }
+    ],
+    
+    // Tarih aralığı filtresi
+    dateRangeFilters: [
+        {
+            id: 'dateFilter',
+            key: 'date',
+            displayName: 'Tarih Aralığı',
+            startKey: 'startDate',    // Aktif filtreler için başlangıç tarihi anahtarı
+            endKey: 'endDate',        // Aktif filtreler için bitiş tarihi anahtarı
+            dataField: 'TARİH',       // Filtrelenecek veri alanı
+            format: 'date'            // Formatlamak için kullanılacak format türü
         }
     ],
     
@@ -68,24 +59,24 @@ const FILTER_CONFIG = {
             sortFunction: null  // Varsayılan sıralama için null
         },
         {
-            id: 'price-asc',
-            displayName: 'Fiyat (Artan)',
-            sortFunction: (a, b) => a.price - b.price
+            id: 'date-asc',
+            displayName: 'Tarih (Eskiden Yeniye)',
+            sortFunction: (a, b) => new Date(a.TARİH) - new Date(b.TARİH)
         },
         {
-            id: 'price-desc',
-            displayName: 'Fiyat (Azalan)',
-            sortFunction: (a, b) => b.price - a.price
+            id: 'date-desc',
+            displayName: 'Tarih (Yeniden Eskiye)',
+            sortFunction: (a, b) => new Date(b.TARİH) - new Date(a.TARİH)
         },
         {
-            id: 'performance-desc',
-            displayName: 'Performans (Yüksek-Düşük)',
-            sortFunction: (a, b) => b.performance_score - a.performance_score
+            id: 'duration-asc',
+            displayName: 'Süre (Artan)',
+            sortFunction: (a, b) => parseInt(a.salt_sure) - parseInt(b.salt_sure)
         },
         {
-            id: 'clock-desc',
-            displayName: 'Saat Hızı (Yüksek-Düşük)',
-            sortFunction: (a, b) => parseFloat(b.clock_speed) - parseFloat(a.clock_speed)
+            id: 'duration-desc',
+            displayName: 'Süre (Azalan)',
+            sortFunction: (a, b) => parseInt(b.salt_sure) - parseInt(a.salt_sure)
         }
     ],
     
@@ -93,8 +84,8 @@ const FILTER_CONFIG = {
     search: {
         id: 'searchInput',
         buttonId: 'searchButton',
-        placeholder: 'arama yap...',
-        label: 'Kategoride Ara',
-        searchFields: ['product_name', 'model'] // Arama yapılacak alanlar
+        placeholder: 'telefon, isim veya TC ara...',
+        label: 'Aramada Ara',
+        searchFields: ['DİĞER NUMARA', 'İsim Soyisim ( Diğer Numara)', 'TC Kimlik No (Diğer Numara)'] // Arama yapılacak alanlar
     }
 };
