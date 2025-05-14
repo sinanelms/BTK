@@ -8,6 +8,9 @@ let filterManager = null;
 // Analiz yöneticisi
 let analyticsManager = null;
 
+// Dışa aktarma yöneticisi
+let exportManager = null;
+
 // DOM elements
 const productsTable = document.getElementById('productsTable');
 const searchInput = document.getElementById('searchInput');
@@ -46,6 +49,9 @@ function fetchProducts() {
             
             // Initialize analytics manager
             analyticsManager = new AnalyticsManager(allProducts);
+            
+            // Initialize export manager (dışa aktarma modülü)
+            exportManager = new ExportManager(() => filterManager.filteredProducts);
             
             // Add event listeners for the view switch buttons
             setupViewSwitchEvents();

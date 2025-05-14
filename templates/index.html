@@ -119,9 +119,23 @@
                 <!-- Table View -->
                 <div id="tableView">
                     <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <h5 class="mb-0">Arama Kayıtları</h5>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex flex-wrap gap-2">
+                                <!-- Export Buttons -->
+                                <div class="btn-group me-2" role="group" aria-label="Dışa Aktarma">
+                                    <button type="button" class="btn btn-sm btn-outline-success" id="exportExcel" title="Excel olarak dışa aktar">
+                                        <i class="fas fa-file-excel me-1"></i> Excel
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" id="exportPdf" title="PDF olarak dışa aktar">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="exportCsv" title="CSV olarak dışa aktar">
+                                        <i class="fas fa-file-csv me-1"></i> CSV
+                                    </button>
+                                </div>
+                                
+                                <!-- Filter Controls -->
                                 <div class="dropdown me-2">
                                     <select class="form-select" id="pageSizeSelect">
                                         <option value="25">25 Kayıt</option>
@@ -362,6 +376,12 @@
     <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Filter Configuration -->
@@ -370,6 +390,8 @@
     <script src="{{ url_for('static', filename='js/filter-module.js') }}"></script>
     <!-- Analytics Module -->
     <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+    <!-- Export Module -->
+    <script src="{{ url_for('static', filename='js/export.js') }}"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
