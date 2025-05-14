@@ -1,0 +1,13 @@
+/* Filtre sayısı stili */
+.filter-count {
+    color: #6c757d;
+    font-size: 0.85em;
+    opacity: 0.8;
+    margin-left: 3px;
+    font-weight: normal;
+}
+
+/* Dark mode için sayı stili */
+body.dark-mode .filter-count {
+    color: #adb5bd;
+}

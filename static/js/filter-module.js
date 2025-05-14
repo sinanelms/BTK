@@ -254,6 +254,18 @@ class FilterManager {
             header.textContent = displayName;
         }
         
+        // Her değer için sayım yap
+        const valueCounts = {};
+        this.products.forEach(product => {
+            const fieldValue = product[this.filterRegistry.categoryFilters[filterKey].dataField];
+            if (fieldValue) {
+                if (!valueCounts[fieldValue]) {
+                    valueCounts[fieldValue] = 0;
+                }
+                valueCounts[fieldValue]++;
+            }
+        });
+        
         // Checkbox'ları oluştur
         values.forEach(value => {
             const checkboxId = `${filterKey}-${value.toString().replace(/\s+/g, '').toLowerCase()}`;
@@ -268,7 +280,7 @@ class FilterManager {
             
             const label = document.createElement('label');
             label.htmlFor = checkboxId;
-            label.textContent = value;
+            label.innerHTML = `${value} <span class="filter-count">(${valueCounts[value] || 0})</span>`;
             
             checkboxDiv.appendChild(checkbox);
             checkboxDiv.appendChild(label);
