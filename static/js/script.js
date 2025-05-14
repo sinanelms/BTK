@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDarkMode();
 });
 
-// Fetch products data from API
+// Fetch call records data from API
 function fetchProducts() {
     fetch('/api/data')
         .then(response => {
@@ -50,12 +50,14 @@ function fetchProducts() {
             allProducts = data.items;
             filteredProducts = [...allProducts];
             
+            console.log("Call records loaded:", allProducts.length);
+            
             // Initialize filter manager with configuration
             filterManager = new FilterManager(FILTER_CONFIG, allProducts);
         })
         .catch(error => {
-            console.error('Error fetching products:', error);
-            showErrorState('Ürün verileri yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
+            console.error('Error fetching call records:', error);
+            showErrorState('Arama kayıtları yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.');
         });
 }
 

@@ -51,7 +51,7 @@ body {
     padding: 0 10px;
 }
 
-#price-slider-range {
+#price-slider-range, #duration-slider-range {
     height: 5px;
     background: #e9ecef;
     border: none;
@@ -59,13 +59,15 @@ body {
     position: relative;
 }
 
-#price-slider-range .ui-slider-range {
+#price-slider-range .ui-slider-range, 
+#duration-slider-range .ui-slider-range {
     background: #0d6efd;
     height: 100%;
     position: absolute;
 }
 
-#price-slider-range .ui-slider-handle {
+#price-slider-range .ui-slider-handle,
+#duration-slider-range .ui-slider-handle {
     width: 16px;
     height: 16px;
     background: #ffffff;
@@ -79,7 +81,9 @@ body {
 }
 
 #price-slider-range .ui-slider-handle:focus,
-#price-slider-range .ui-slider-handle:active {
+#price-slider-range .ui-slider-handle:active,
+#duration-slider-range .ui-slider-handle:focus,
+#duration-slider-range .ui-slider-handle:active {
     outline: none;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
@@ -146,12 +150,12 @@ body {
     vertical-align: middle;
 }
 
-.product-row {
+.product-row, .record-row {
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.product-row:hover {
+.product-row:hover, .record-row:hover {
     background-color: #f1f3f5;
 }
 

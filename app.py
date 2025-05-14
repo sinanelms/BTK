@@ -26,9 +26,13 @@ def load_data():
                 if row.get('SIRA NO'):
                     row['SIRA NO'] = int(row['SIRA NO'])
                 items.append(row)
+        
+        logging.debug(f"Loaded {len(items)} records from CSV")
         return {"items": items}
     except Exception as e:
         logging.error(f"Error loading data: {e}")
+        import traceback
+        logging.error(traceback.format_exc())
         return {"items": []}
 
 @app.route('/')
