@@ -114,34 +114,34 @@ class AnalyticsManager {
         const totalCalls = this.callRecords.length;
         
         // Gelen arama sayısı
-        const incomingCalls = this.callRecords.filter(record => record.tip && record.tip.includes('Gelen')).length;
+        const incomingCalls = this.callRecords.filter(record => record['TİP'] && record['TİP'].includes('Gelen')).length;
         
         // Giden arama sayısı
-        const outgoingCalls = this.callRecords.filter(record => record.tip && record.tip.includes('Giden')).length;
+        const outgoingCalls = this.callRecords.filter(record => record['TİP'] && record['TİP'].includes('aradı')).length;
         
         // Cevapsız arama sayısı
-        const missedCalls = this.callRecords.filter(record => record.tip && record.tip.includes('Cevapsız')).length;
+        const missedCalls = this.callRecords.filter(record => record['TİP'] && record['TİP'].includes('Cevapsız')).length;
         
         // Toplam konuşma süresi
         const totalDuration = this.callRecords.reduce((total, record) => {
-            return total + (parseInt(record.duration) || 0);
+            return total + (parseInt(record.salt_sure) || 0);
         }, 0);
         
         // Ortalama konuşma süresi (cevapsız aramalar hariç)
         const answeredCalls = this.callRecords.filter(record => 
-            parseInt(record.duration) > 0 || 
-            (record.tip && !record.tip.includes('Cevapsız'))
+            parseInt(record.salt_sure) > 0 || 
+            (record['TİP'] && !record['TİP'].includes('Cevapsız'))
         );
         const avgDuration = answeredCalls.length > 0 ? 
             Math.round(answeredCalls.reduce((total, record) => {
-                return total + (parseInt(record.duration) || 0);
+                return total + (parseInt(record.salt_sure) || 0);
             }, 0) / answeredCalls.length) : 0;
         
         // Benzersiz kişi sayısı
         const uniqueContacts = new Set();
         this.callRecords.forEach(record => {
-            if (record.name) uniqueContacts.add(record.name);
-            else if (record.phone) uniqueContacts.add(record.phone);
+            if (record['İsim Soyisim ( Diğer Numara)']) uniqueContacts.add(record['İsim Soyisim ( Diğer Numara)']);
+            else if (record['DİĞER NUMARA']) uniqueContacts.add(record['DİĞER NUMARA']);
         });
         
         // İstatistikleri HTML içeriğine dönüştür
@@ -202,7 +202,7 @@ class AnalyticsManager {
         // Arama tiplerini ve sayılarını hesapla
         const callTypes = {};
         this.callRecords.forEach(record => {
-            const type = record.tip || 'Bilinmiyor';
+            const type = record['TİP'] || 'Bilinmiyor';
             callTypes[type] = (callTypes[type] || 0) + 1;
         });
         
@@ -356,17 +356,17 @@ class AnalyticsManager {
         
         // Arama kayıtlarını saat bazında gruplandır
         this.callRecords.forEach(record => {
-            if (!record.tarih) return;
+            if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record.tarih);
+                const date = new Date(record['TARİH']);
                 const hour = date.getHours();
                 
-                if (record.tip && record.tip.includes('Gelen')) {
+                if (record['TİP'] && record['TİP'].includes('Gelen')) {
                     incoming[hour]++;
-                } else if (record.tip && record.tip.includes('Giden')) {
+                } else if (record['TİP'] && record['TİP'].includes('aradı')) {
                     outgoing[hour]++;
-                } else if (record.tip && record.tip.includes('Cevapsız')) {
+                } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
                     missed[hour]++;
                 }
             } catch (e) {
@@ -391,17 +391,17 @@ class AnalyticsManager {
         
         // Arama kayıtlarını haftanın günlerine göre gruplandır
         this.callRecords.forEach(record => {
-            if (!record.tarih) return;
+            if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record.tarih);
+                const date = new Date(record['TARİH']);
                 const dayOfWeek = date.getDay(); // 0=Pazar, 1=Pazartesi, ...
                 
-                if (record.tip && record.tip.includes('Gelen')) {
+                if (record['TİP'] && record['TİP'].includes('Gelen')) {
                     incoming[dayOfWeek]++;
-                } else if (record.tip && record.tip.includes('Giden')) {
+                } else if (record['TİP'] && record['TİP'].includes('aradı')) {
                     outgoing[dayOfWeek]++;
-                } else if (record.tip && record.tip.includes('Cevapsız')) {
+                } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
                     missed[dayOfWeek]++;
                 }
             } catch (e) {
@@ -426,17 +426,17 @@ class AnalyticsManager {
         
         // Arama kayıtlarını aylara göre gruplandır
         this.callRecords.forEach(record => {
-            if (!record.tarih) return;
+            if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record.tarih);
+                const date = new Date(record['TARİH']);
                 const month = date.getMonth(); // 0=Ocak, 1=Şubat, ...
                 
-                if (record.tip && record.tip.includes('Gelen')) {
+                if (record['TİP'] && record['TİP'].includes('Gelen')) {
                     incoming[month]++;
-                } else if (record.tip && record.tip.includes('Giden')) {
+                } else if (record['TİP'] && record['TİP'].includes('aradı')) {
                     outgoing[month]++;
-                } else if (record.tip && record.tip.includes('Cevapsız')) {
+                } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
                     missed[month]++;
                 }
             } catch (e) {
@@ -472,7 +472,7 @@ class AnalyticsManager {
         // Kişi bazında arama sayılarını hesapla
         const contactCounts = {};
         this.callRecords.forEach(record => {
-            const contact = record.name || record.phone || 'Bilinmiyor';
+            const contact = record['İsim Soyisim ( Diğer Numara)'] || record['DİĞER NUMARA'] || 'Bilinmiyor';
             contactCounts[contact] = (contactCounts[contact] || 0) + 1;
         });
         
@@ -523,12 +523,12 @@ class AnalyticsManager {
         
         // Süresi olan aramalar
         const callsWithDuration = this.callRecords
-            .filter(record => parseInt(record.duration) > 0)
+            .filter(record => parseInt(record.salt_sure) > 0)
             .map(record => ({
-                contact: record.name || record.phone || 'Bilinmiyor',
-                duration: parseInt(record.duration) || 0,
-                date: record.tarih || '',
-                type: record.tip || 'Bilinmiyor'
+                contact: record['İsim Soyisim ( Diğer Numara)'] || record['DİĞER NUMARA'] || 'Bilinmiyor',
+                duration: parseInt(record.salt_sure) || 0,
+                date: record['TARİH'] || '',
+                type: record['TİP'] || 'Bilinmiyor'
             }));
         
         // En uzun görüşmeleri bul
@@ -592,8 +592,8 @@ class AnalyticsManager {
         
         // Aramalardan süreleri topla
         const durations = this.callRecords
-            .filter(record => parseInt(record.duration) > 0)
-            .map(record => parseInt(record.duration));
+            .filter(record => parseInt(record.salt_sure) > 0)
+            .map(record => parseInt(record.salt_sure));
         
         // Süre aralıklarını belirle (saniye cinsinden)
         const durationRanges = [
@@ -659,13 +659,13 @@ class AnalyticsManager {
         // Seçilen kişiye göre arama kayıtlarını filtrele
         let filteredRecords = this.callRecords;
         if (this.selectedPerson) {
-            filteredRecords = this.callRecords.filter(record => record.name === this.selectedPerson);
+            filteredRecords = this.callRecords.filter(record => record['İsim Soyisim ( Diğer Numara)'] === this.selectedPerson);
         }
         
         // Tarih sırasına göre sırala
         filteredRecords = filteredRecords
-            .filter(record => record.tarih)
-            .sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+            .filter(record => record['TARİH'])
+            .sort((a, b) => new Date(a['TARİH']) - new Date(b['TARİH']));
         
         // Zaman çizelgesi HTML'ini oluştur
         if (filteredRecords.length === 0) {
