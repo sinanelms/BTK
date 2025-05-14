@@ -71,6 +71,26 @@ class ExportManager {
             // SheetJS ile excel oluşturma
             const worksheet = XLSX.utils.json_to_sheet(formattedRecords);
             const workbook = XLSX.utils.book_new();
+            
+            // Turkish character encoding için ayar
+            workbook.Props = {
+                Title: "Telefon Arama Kayıtları",
+                Subject: "Arama Kayıtları",
+                Author: "Arama Kayıtları Uygulaması",
+                CreatedDate: new Date()
+            };
+            
+            // Türkçe karakterleri düzgün göstermek için sayfa kodlaması ayarı
+            workbook.Workbook = {
+                Views: [{RTL: false}],
+                Sheets: [{
+                    WorkbookOptions: {
+                        DisplayLanguage: "tr-TR"
+                    }
+                }]
+            };
+            
+            // Çalışma sayfasını ekle
             XLSX.utils.book_append_sheet(workbook, worksheet, "Arama Kayıtları");
             
             // Kolon genişliklerini ayarla
@@ -93,8 +113,16 @@ class ExportManager {
             const timestamp = now.toISOString().replace(/[:.]/g, '-').substring(0, 19);
             const filename = `telefon_arama_kayitlari_${timestamp}.xlsx`;
             
+            // Excel dosyasını indir (BookType: 'xlsx' ve UTF8 için)
+            const wopts = { 
+                bookType: 'xlsx', 
+                bookSST: false, 
+                type: 'binary',
+                cellStyles: true
+            };
+            
             // Excel dosyasını indir
-            XLSX.writeFile(workbook, filename);
+            XLSX.writeFile(workbook, filename, wopts);
             
             // Başarı mesajı göster
             this.showExportStatus(`${records.length} kayıt Excel formatında başarıyla indirildi.`, 'success');
@@ -115,34 +143,76 @@ class ExportManager {
         const formattedRecords = this.formatRecordsToArray(records);
         
         try {
+            // Türkçe karakterleri ASCII karşılıklarıyla değiştir
+            const fixTurkishChars = (str) => {
+                if (typeof str !== 'string') return str;
+                return str
+                    .replace(/ı/g, 'i')
+                    .replace(/İ/g, 'I')
+                    .replace(/ğ/g, 'g')
+                    .replace(/Ğ/g, 'G')
+                    .replace(/ü/g, 'u')
+                    .replace(/Ü/g, 'U')
+                    .replace(/ş/g, 's')
+                    .replace(/Ş/g, 'S')
+                    .replace(/ç/g, 'c')
+                    .replace(/Ç/g, 'C')
+                    .replace(/ö/g, 'o')
+                    .replace(/Ö/g, 'O');
+            };
+            
+            // Tamamen ASCII tabanlı veriler oluştur
+            const asciiFormattedRecords = formattedRecords.map(record => {
+                const result = {};
+                for (const key in record) {
+                    // Hem anahtarları hem değerleri düzelt
+                    const fixedKey = fixTurkishChars(key);
+                    result[fixedKey] = fixTurkishChars(record[key]);
+                }
+                return result;
+            });
+            
             // jsPDF'i başlat
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('landscape', 'pt', 'a4');
             
             // Doküman başlığı
             doc.setFontSize(16);
-            doc.text('Telefon Arama Kayıtları', 40, 40);
+            doc.text('Telefon Arama Kayitlari', 40, 40);
             
             // Alt bilgi olarak tarih ve sayfa bilgisini ekle
-            const now = new Date().toLocaleString('tr-TR');
-            doc.setFontSize(10);
-            doc.text(`Oluşturulma Tarihi: ${now}`, 40, 60);
-            doc.text(`Toplam Kayıt Sayısı: ${records.length}`, 40, 75);
+            const now = new Date().toLocaleString('tr-TR').replace(/[ıİğĞüÜşŞçÇöÖ]/g, m => 
+                m === 'ı' ? 'i' : 
+                m === 'İ' ? 'I' : 
+                m === 'ğ' ? 'g' : 
+                m === 'Ğ' ? 'G' : 
+                m === 'ü' ? 'u' : 
+                m === 'Ü' ? 'U' : 
+                m === 'ş' ? 's' : 
+                m === 'Ş' ? 'S' : 
+                m === 'ç' ? 'c' : 
+                m === 'Ç' ? 'C' : 
+                m === 'ö' ? 'o' : 'O'
+            );
             
-            // Tablo verisini hazırla
-            const tableData = formattedRecords.map(record => [
-                record['Sıra No'],
+            doc.setFontSize(10);
+            doc.text(`Olusturulma Tarihi: ${now}`, 40, 60);
+            doc.text(`Toplam Kayit Sayisi: ${records.length}`, 40, 75);
+            
+            // Tablo verisini hazırla - ASCII karakterler olarak
+            const tableData = asciiFormattedRecords.map(record => [
+                record['Sira No'],
                 record['Tarih'],
                 record['Tip'],
                 record['Numara'],
-                record['Diğer Numara'],
-                record['İsim Soyisim'],
-                record['Süre (sn)']
+                record['Diger Numara'],
+                record['Isim Soyisim'],
+                record['Sure (sn)']
             ]);
             
-            // Tablo başlıklarını ayarla
+            // Tablo başlıklarını ayarla - ASCII karakterler olarak
             const headers = [
-                'Sıra No', 'Tarih', 'Tip', 'Numara', 'Diğer Numara', 'İsim Soyisim', 'Süre (sn)'
+                'Sira No', 'Tarih', 'Tip', 'Numara', 'Diger Numara', 'Isim Soyisim', 'Sure (sn)'
             ];
             
             // Tabloyu oluştur ve PDF'e ekle
@@ -172,7 +242,7 @@ class ExportManager {
                 }
             });
             
-            // Aktarma tarihi ve saat bilgisini dosya ismine ekle
+            // Aktarma tarihi ve saat bilgisini dosya ismine ekle - ASCII karakterler olarak
             const timestamp = now.replace(/[: \/]/g, '-');
             const filename = `telefon_arama_kayitlari_${timestamp}.pdf`;
             
@@ -180,10 +250,10 @@ class ExportManager {
             doc.save(filename);
             
             // Başarı mesajı göster
-            this.showExportStatus(`${records.length} kayıt PDF formatında başarıyla indirildi.`, 'success');
+            this.showExportStatus(`${records.length} kayit PDF formatinda basariyla indirildi.`, 'success');
         } catch (error) {
             console.error('PDF dışa aktarma hatası:', error);
-            this.showExportStatus('PDF dışa aktarma işlemi sırasında bir hata oluştu.', 'danger');
+            this.showExportStatus('PDF disa aktarma islemi sirasinda bir hata olustu.', 'danger');
         }
     }
 
@@ -223,9 +293,12 @@ class ExportManager {
             const timestamp = now.toISOString().replace(/[:.]/g, '-').substring(0, 19);
             const filename = `telefon_arama_kayitlari_${timestamp}.csv`;
             
+            // UTF-8 BOM ekleyerek Türkçe karakterlerin düzgün görünmesini sağla
+            const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const csvBlob = new Blob([BOM, csvData], { type: 'text/csv;charset=utf-8;' });
+            
             // CSV dosyasını indir
-            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-            saveAs(blob, filename);
+            saveAs(csvBlob, filename);
             
             // Başarı mesajı göster
             this.showExportStatus(`${records.length} kayıt CSV formatında başarıyla indirildi.`, 'success');
