@@ -550,15 +550,50 @@ class FilterManager {
     renderProducts() {
         if (this.filteredProducts.length === 0) {
             this.showEmptyState();
+            // Sayfalama bilgilerini güncelle
+            this.updatePaginationInfo(0, 0, 0);
             return;
         }
+        
+        // Toplam sayfa sayısını güncelle
+        const totalRecords = this.filteredProducts.length;
+        
+        // Sayfa boyutu 0 ise (tümünü göster), sayfa sayısı 1'dir
+        if (this.pageSize === 0) {
+            this.totalPages = 1;
+        } else {
+            this.totalPages = Math.ceil(totalRecords / this.pageSize);
+        }
+        
+        // Geçerli sayfa numarasını kontrol et ve düzelt
+        if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+        }
+        if (this.currentPage < 1) {
+            this.currentPage = 1;
+        }
+        
+        // Bu sayfada gösterilecek kayıtları belirle
+        let recordsToShow = [...this.filteredProducts];
+        let startIndex = 0;
+        let endIndex = totalRecords;
+        
+        // Eğer sayfa boyutu belirtilmişse (tümünü göster modunda değilse)
+        if (this.pageSize > 0) {
+            startIndex = (this.currentPage - 1) * this.pageSize;
+            endIndex = Math.min(startIndex + this.pageSize, totalRecords);
+            recordsToShow = this.filteredProducts.slice(startIndex, endIndex);
+        }
+        
+        // Sayfalama bilgilerini güncelle
+        this.updatePaginationInfo(startIndex + 1, endIndex, totalRecords);
         
         // Önceki içeriği temizle
         this.productsTable.innerHTML = '';
         this.productsGrid.innerHTML = '';
         
         // Her arama kaydını render et
-        this.filteredProducts.forEach(record => {
+        recordsToShow.forEach(record => {
             // Tablo görünümüne ekle (masaüstü)
             const tableRow = document.createElement('tr');
             tableRow.className = 'record-row';
@@ -606,6 +641,48 @@ class FilterManager {
             
             this.productsGrid.appendChild(clone);
         });
+        
+        // Sayfalama UI elementlerini güncelle
+        this.updatePaginationUI();
+    }
+    
+    /**
+     * Sayfalama bilgilerini günceller
+     */
+    updatePaginationInfo(start, end, total) {
+        if (this.paginationInfoSpan) {
+            if (total === 0) {
+                this.paginationInfoSpan.textContent = 'Gösteriliyor: 0 kayıt';
+            } else {
+                this.paginationInfoSpan.textContent = `Gösteriliyor: ${start}-${end} / ${total}`;
+            }
+        }
+        
+        if (this.currentPageSpan) {
+            this.currentPageSpan.textContent = this.currentPage;
+        }
+    }
+    
+    /**
+     * Sayfalama UI elementlerini günceller (butonların aktif/pasif durumu vs.)
+     */
+    updatePaginationUI() {
+        // Önceki sayfa butonunu güncelle
+        if (this.prevPageButton) {
+            this.prevPageButton.disabled = this.currentPage <= 1;
+            this.prevPageButton.parentElement.classList.toggle('disabled', this.currentPage <= 1);
+        }
+        
+        // Sonraki sayfa butonunu güncelle
+        if (this.nextPageButton) {
+            this.nextPageButton.disabled = this.currentPage >= this.totalPages;
+            this.nextPageButton.parentElement.classList.toggle('disabled', this.currentPage >= this.totalPages);
+        }
+        
+        // Sayfa numarasını güncelle
+        if (this.currentPageSpan) {
+            this.currentPageSpan.textContent = this.currentPage;
+        }
     }
     
     /**
@@ -633,8 +710,11 @@ class FilterManager {
             const minValue = Math.min(...values);
             const maxValue = Math.max(...values);
             
+            // Slider ID'sini al
+            const sliderId = filter.sliderRange || `${filter.key}-slider-range`;
+            
             // Slider'ı sıfırla
-            $(`#${filter.key}-slider-range`).slider("values", [minValue, maxValue]);
+            $(`#${sliderId}`).slider("values", [minValue, maxValue]);
             
             // Etiketleri güncelle
             minLabel.textContent = this.formatValue(minValue, filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
@@ -648,6 +728,9 @@ class FilterManager {
         
         // Sıralama seçimini sıfırla
         this.sortSelect.value = 'default';
+        
+        // Sayfalama ile ilgili değerleri sıfırla
+        this.currentPage = 1;
         
         // Filtrelenmiş ürünleri tüm ürünlere sıfırla
         this.filteredProducts = [...this.products];
