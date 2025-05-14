@@ -153,7 +153,11 @@ class FilterManager {
             
             // jQuery UI slider'ı oluştur
             $(function() {
-                $(`#${filter.key}-slider-range`).slider({
+                // Slider ID'sini al
+                const sliderId = filter.sliderRange || `${filter.key}-slider-range`;
+                console.log(`Initializing slider: #${sliderId} with min: ${minValue}, max: ${maxValue}`);
+                
+                $(`#${sliderId}`).slider({
                     range: true,
                     min: minValue,
                     max: maxValue,
@@ -322,16 +326,19 @@ class FilterManager {
         this.activeFilters[filter.minKey] = minInput.value ? parseFloat(minInput.value) : null;
         this.activeFilters[filter.maxKey] = maxInput.value ? parseFloat(maxInput.value) : null;
         
+        // Slider ID'sini al
+        const sliderId = filter.sliderRange || `${filter.key}-slider-range`;
+        
         // Slider pozisyonlarını güncelle
         if (this.activeFilters[filter.minKey] !== null && this.activeFilters[filter.maxKey] !== null) {
-            $(`#${filter.key}-slider-range`).slider("values", [
+            $(`#${sliderId}`).slider("values", [
                 this.activeFilters[filter.minKey],
                 this.activeFilters[filter.maxKey]
             ]);
         } else if (this.activeFilters[filter.minKey] !== null) {
-            $(`#${filter.key}-slider-range`).slider("values", 0, this.activeFilters[filter.minKey]);
+            $(`#${sliderId}`).slider("values", 0, this.activeFilters[filter.minKey]);
         } else if (this.activeFilters[filter.maxKey] !== null) {
-            $(`#${filter.key}-slider-range`).slider("values", 1, this.activeFilters[filter.maxKey]);
+            $(`#${sliderId}`).slider("values", 1, this.activeFilters[filter.maxKey]);
         }
         
         // Etiketleri güncelle

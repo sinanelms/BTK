@@ -34,7 +34,8 @@ const FILTER_CONFIG = {
             maxKey: 'maxDuration',      // Aktif filtreler için max değer anahtarı
             dataField: 'salt_sure',     // Filtrelenecek veri alanı
             format: 'number',           // Formatlamak için kullanılacak format türü
-            suffix: 'sn'                // Değer sonuna eklenecek metin
+            suffix: 'sn',               // Değer sonuna eklenecek metin
+            sliderRange: 'duration-slider-range' // Slider elementinin ID'si
         }
     ],
     
