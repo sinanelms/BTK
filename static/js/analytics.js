@@ -100,21 +100,35 @@ class AnalyticsManager {
             contactSelect.remove(1);
         }
         
-        // Kişilerin isimlerini al (İsim Soyisim alanından)
-        const uniqueContacts = [...new Set(this.callRecords
-            .map(record => record['İsim Soyisim ( Diğer Numara)'])
-            .filter(name => name && name.trim() !== ''))
-        ];
+        // Her kişi için kayıt sayısını hesapla
+        const contactCounts = {};
+        this.callRecords.forEach(record => {
+            const name = record['İsim Soyisim ( Diğer Numara)'];
+            if (name && name.trim() !== '') {
+                contactCounts[name] = (contactCounts[name] || 0) + 1;
+            }
+        });
         
-        // Alfabetik olarak sırala
-        uniqueContacts.sort().forEach(name => {
+        // Kişileri kayıt sayısına göre sırala (çoktan aza)
+        const sortedContacts = Object.entries(contactCounts)
+            .sort((a, b) => {
+                // Önce kayıt sayısına göre sırala (çoktan aza)
+                if (b[1] !== a[1]) {
+                    return b[1] - a[1];
+                }
+                // Eşitse alfabetik sırala
+                return a[0].localeCompare(b[0]);
+            });
+        
+        // Seçenekleri ekle (kişi adı ve kayıt sayısı ile birlikte)
+        sortedContacts.forEach(([name, count]) => {
             const option = document.createElement('option');
             option.value = name;
-            option.textContent = name;
+            option.textContent = `${name} (${count})`;
             contactSelect.appendChild(option);
         });
         
-        console.log("Kişi listesi yüklendi:", uniqueContacts.length, "kişi bulundu");
+        console.log("Kişi listesi yüklendi:", sortedContacts.length, "kişi bulundu");
     }
     
     /**
@@ -689,11 +703,27 @@ class AnalyticsManager {
      */
     renderTimeline() {
         const timelineContainer = document.getElementById('timelineContainer');
+        const contactSelect = document.getElementById('contactSelect');
+        
+        // Seçilen kişi değeri
+        this.selectedPerson = contactSelect.value;
+        
+        // Başlığı ve seçili kişi bilgisini güncelle
+        let titleInfo = document.getElementById('timelineTitle');
+        if (!titleInfo) {
+            titleInfo = document.createElement('div');
+            titleInfo.id = 'timelineTitle';
+            titleInfo.className = 'mb-3 text-muted';
+            timelineContainer.parentNode.insertBefore(titleInfo, timelineContainer);
+        }
         
         // Seçilen kişiye göre arama kayıtlarını filtrele
         let filteredRecords = this.callRecords;
         if (this.selectedPerson) {
             filteredRecords = this.callRecords.filter(record => record['İsim Soyisim ( Diğer Numara)'] === this.selectedPerson);
+            titleInfo.innerHTML = `<i class="fas fa-user me-1"></i> <strong>${this.selectedPerson}</strong> için ${filteredRecords.length} kayıt gösteriliyor`;
+        } else {
+            titleInfo.innerHTML = `<i class="fas fa-info-circle me-1"></i> Tüm kayıtlar görüntüleniyor. Detaylı bilgi için bir kişi seçin.`;
         }
         
         // Tarihleri doğru şekilde ayrıştır ve sırala
