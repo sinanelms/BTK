@@ -359,18 +359,25 @@ class AnalyticsManager {
             if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record['TARİH']);
-                const hour = date.getHours();
+                // Tarih formatını düzgün şekilde ayrıştır
+                const dateStr = record['TARİH'];
+                const [datePart, timePart] = dateStr.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute, second] = timePart.split(':');
+                
+                // JavaScript ayları 0-11 arası olduğu için ay değerinden 1 çıkarıyoruz
+                const date = new Date(year, month - 1, day, hour, minute, second);
+                const hourValue = date.getHours();
                 
                 if (record['TİP'] && record['TİP'].includes('Gelen')) {
-                    incoming[hour]++;
+                    incoming[hourValue]++;
                 } else if (record['TİP'] && record['TİP'].includes('aradı')) {
-                    outgoing[hour]++;
+                    outgoing[hourValue]++;
                 } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
-                    missed[hour]++;
+                    missed[hourValue]++;
                 }
             } catch (e) {
-                console.error('Tarih ayrıştırma hatası:', e);
+                console.error('Tarih ayrıştırma hatası:', e, record['TARİH']);
             }
         });
         
@@ -394,7 +401,14 @@ class AnalyticsManager {
             if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record['TARİH']);
+                // Tarih formatını düzgün şekilde ayrıştır
+                const dateStr = record['TARİH'];
+                const [datePart, timePart] = dateStr.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute, second] = timePart.split(':');
+                
+                // JavaScript ayları 0-11 arası olduğu için ay değerinden 1 çıkarıyoruz
+                const date = new Date(year, month - 1, day, hour, minute, second);
                 const dayOfWeek = date.getDay(); // 0=Pazar, 1=Pazartesi, ...
                 
                 if (record['TİP'] && record['TİP'].includes('Gelen')) {
@@ -405,7 +419,7 @@ class AnalyticsManager {
                     missed[dayOfWeek]++;
                 }
             } catch (e) {
-                console.error('Tarih ayrıştırma hatası:', e);
+                console.error('Tarih ayrıştırma hatası:', e, record['TARİH']);
             }
         });
         
@@ -429,18 +443,25 @@ class AnalyticsManager {
             if (!record['TARİH']) return;
             
             try {
-                const date = new Date(record['TARİH']);
-                const month = date.getMonth(); // 0=Ocak, 1=Şubat, ...
+                // Tarih formatını düzgün şekilde ayrıştır
+                const dateStr = record['TARİH'];
+                const [datePart, timePart] = dateStr.split(' ');
+                const [year, month, day] = datePart.split('-');
+                const [hour, minute, second] = timePart.split(':');
+                
+                // JavaScript ayları 0-11 arası olduğu için ay değerinden 1 çıkarıyoruz
+                const date = new Date(year, month - 1, day, hour, minute, second);
+                const monthValue = date.getMonth(); // 0=Ocak, 1=Şubat, ...
                 
                 if (record['TİP'] && record['TİP'].includes('Gelen')) {
-                    incoming[month]++;
+                    incoming[monthValue]++;
                 } else if (record['TİP'] && record['TİP'].includes('aradı')) {
-                    outgoing[month]++;
+                    outgoing[monthValue]++;
                 } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
-                    missed[month]++;
+                    missed[monthValue]++;
                 }
             } catch (e) {
-                console.error('Tarih ayrıştırma hatası:', e);
+                console.error('Tarih ayrıştırma hatası:', e, record['TARİH']);
             }
         });
         
@@ -662,10 +683,33 @@ class AnalyticsManager {
             filteredRecords = this.callRecords.filter(record => record['İsim Soyisim ( Diğer Numara)'] === this.selectedPerson);
         }
         
-        // Tarih sırasına göre sırala
+        // Tarihleri doğru şekilde ayrıştır ve sırala
         filteredRecords = filteredRecords
             .filter(record => record['TARİH'])
-            .sort((a, b) => new Date(a['TARİH']) - new Date(b['TARİH']));
+            .map(record => {
+                // Tarihi doğru şekilde ayrıştır
+                try {
+                    const dateStr = record['TARİH'];
+                    const [datePart, timePart] = dateStr.split(' ');
+                    const [year, month, day] = datePart.split('-');
+                    const [hour, minute, second] = timePart.split(':');
+                    
+                    // JavaScript ayları 0-11 arası olduğu için ay değerinden 1 çıkarıyoruz
+                    const parsedDate = new Date(year, month - 1, day, hour, minute, second);
+                    
+                    return {
+                        ...record,
+                        parsedDate
+                    };
+                } catch (e) {
+                    console.error('Tarih ayrıştırma hatası:', e, record['TARİH']);
+                    return {
+                        ...record,
+                        parsedDate: new Date(0) // 1970-01-01 tarihini kullan (en eski tarih)
+                    };
+                }
+            })
+            .sort((a, b) => a.parsedDate - b.parsedDate);
         
         // Zaman çizelgesi HTML'ini oluştur
         if (filteredRecords.length === 0) {
@@ -677,19 +721,18 @@ class AnalyticsManager {
         
         // Her arama kaydı için bir zaman çizelgesi öğesi oluştur
         filteredRecords.forEach((record, index) => {
-            const date = new Date(record.tarih);
-            const formattedDate = this.formatDate(date);
-            const formattedTime = this.formatTime(date);
+            const formattedDate = this.formatDate(record.parsedDate);
+            const formattedTime = this.formatTime(record.parsedDate);
             
             // Arama tipi için ikon ve renk seç
             let icon, colorClass;
-            if (record.tip && record.tip.includes('Gelen')) {
+            if (record['TİP'] && record['TİP'].includes('Gelen')) {
                 icon = '<i class="fas fa-phone-alt"></i>';
                 colorClass = 'bg-primary';
-            } else if (record.tip && record.tip.includes('Giden')) {
+            } else if (record['TİP'] && record['TİP'].includes('aradı')) {
                 icon = '<i class="fas fa-phone-volume"></i>';
                 colorClass = 'bg-success';
-            } else if (record.tip && record.tip.includes('Cevapsız')) {
+            } else if (record['TİP'] && record['TİP'].includes('Cevapsız')) {
                 icon = '<i class="fas fa-phone-slash"></i>';
                 colorClass = 'bg-danger';
             } else {
@@ -707,13 +750,13 @@ class AnalyticsManager {
                     <div class="timeline-content">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">${record.name || record.phone || 'Bilinmiyor'}</h5>
+                                <h5 class="card-title">${record['İsim Soyisim ( Diğer Numara)'] || record['DİĞER NUMARA'] || 'Bilinmiyor'}</h5>
                                 <p class="card-text">
-                                    <span class="badge ${this.getCallTypeBadgeClass(record.tip)}">${record.tip || 'Bilinmiyor'}</span>
-                                    ${parseInt(record.duration) > 0 ? `<span class="badge bg-info ms-2">${this.formatDuration(record.duration)}</span>` : ''}
+                                    <span class="badge ${this.getCallTypeBadgeClass(record['TİP'])}">${record['TİP'] || 'Bilinmiyor'}</span>
+                                    ${parseInt(record.salt_sure) > 0 ? `<span class="badge bg-info ms-2">${this.formatDuration(record.salt_sure)}</span>` : ''}
                                 </p>
                                 <div class="small text-muted">
-                                    ${record.phone ? `Numara: ${record.phone}` : ''}
+                                    ${record['DİĞER NUMARA'] ? `Numara: ${record['DİĞER NUMARA']}` : ''}
                                 </div>
                             </div>
                         </div>
