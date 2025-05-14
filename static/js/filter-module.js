@@ -152,6 +152,9 @@ class FilterManager {
             maxLabel.textContent = this.formatValue(maxValue, filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
             
             // jQuery UI slider'ı oluştur
+            // this bağlamını sakla
+            const self = this;
+            
             $(function() {
                 // Slider ID'sini al
                 const sliderId = filter.sliderRange || `${filter.key}-slider-range`;
@@ -162,19 +165,19 @@ class FilterManager {
                     min: minValue,
                     max: maxValue,
                     values: [minValue, maxValue],
-                    slide: (event, ui) => {
+                    slide: function(event, ui) {
                         // Input ve etiketleri güncelle
                         minInput.value = ui.values[0];
                         maxInput.value = ui.values[1];
-                        minLabel.textContent = this.formatValue(ui.values[0], filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
-                        maxLabel.textContent = this.formatValue(ui.values[1], filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
+                        minLabel.textContent = self.formatValue(ui.values[0], filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
+                        maxLabel.textContent = self.formatValue(ui.values[1], filter.format) + (filter.suffix ? ` ${filter.suffix}` : '');
                         
                         // Aktif filtreleri güncelle
-                        this.activeFilters[filter.minKey] = ui.values[0];
-                        this.activeFilters[filter.maxKey] = ui.values[1];
+                        self.activeFilters[filter.minKey] = ui.values[0];
+                        self.activeFilters[filter.maxKey] = ui.values[1];
                         
                         // Filtreleri uygula
-                        this.applyFilters();
+                        self.applyFilters();
                     }
                 });
             });
