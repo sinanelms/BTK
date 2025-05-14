@@ -2,31 +2,20 @@
 let allProducts = [];
 let filteredProducts = [];
 
-// Filter registry - keeps track of all initialized filters
-const filterRegistry = {
-    categoryFilters: {},
-    specialFilters: {},
-    rangeFilters: {}
-};
+// Filtre yöneticisi
+let filterManager = null;
 
-// Active filters - will be initialized based on filter config
-let activeFilters = {};
+// Analiz yöneticisi
+let analyticsManager = null;
 
 // DOM elements
 const productsTable = document.getElementById('productsTable');
-const productsGrid = document.getElementById('productsGrid');
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
 const resetFiltersButton = document.getElementById('resetFilters');
 const sortSelect = document.getElementById('sortSelect');
-const minPriceInput = document.getElementById('minPrice');
-const maxPriceInput = document.getElementById('maxPrice');
-const priceSliderRange = document.getElementById('price-slider-range');
-const minPriceLabel = document.getElementById('minPriceLabel');
-const maxPriceLabel = document.getElementById('maxPriceLabel');
-
-// Filtre yöneticisi
-let filterManager = null;
+const tableViewBtn = document.getElementById('tableViewBtn');
+const analysisViewBtn = document.getElementById('analysisViewBtn');
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,6 +43,12 @@ function fetchProducts() {
             
             // Initialize filter manager with configuration
             filterManager = new FilterManager(FILTER_CONFIG, allProducts);
+            
+            // Initialize analytics manager
+            analyticsManager = new AnalyticsManager(allProducts);
+            
+            // Add event listeners for the view switch buttons
+            setupViewSwitchEvents();
         })
         .catch(error => {
             console.error('Error fetching call records:', error);
@@ -442,6 +437,26 @@ function showEmptyState() {
             </div>
         </div>
     `;
+}
+
+/**
+ * Tablo ve Analiz görünümleri arasında geçiş için
+ * olay dinleyicilerini ayarlar
+ */
+function setupViewSwitchEvents() {
+    // Tablo görünümüne geçiş
+    tableViewBtn.addEventListener('click', () => {
+        if (analyticsManager) {
+            analyticsManager.switchView('table');
+        }
+    });
+    
+    // Analiz görünümüne geçiş
+    analysisViewBtn.addEventListener('click', () => {
+        if (analyticsManager) {
+            analyticsManager.switchView('analysis');
+        }
+    });
 }
 
 // Show error state
