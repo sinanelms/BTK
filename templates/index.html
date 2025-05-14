@@ -224,7 +224,9 @@
                                             <div class="card mb-4">
                                                 <div class="card-header">Arama Tiplerine Göre Dağılım</div>
                                                 <div class="card-body">
-                                                    <canvas id="callTypeChart"></canvas>
+                                                    <div style="height: 300px; position: relative;">
+                                                        <canvas id="callTypeChart"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -253,7 +255,9 @@
                                                         <button type="button" class="btn btn-outline-primary" id="weeklyBtn">Haftalık</button>
                                                         <button type="button" class="btn btn-outline-primary" id="monthlyBtn">Aylık</button>
                                                     </div>
-                                                    <canvas id="timeDistributionChart"></canvas>
+                                                    <div style="height: 400px; position: relative;">
+                                                        <canvas id="timeDistributionChart"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -267,7 +271,9 @@
                                             <div class="card">
                                                 <div class="card-header">En Çok Görüşülen Kişiler</div>
                                                 <div class="card-body">
-                                                    <canvas id="topContactsChart"></canvas>
+                                                    <div style="height: 300px; position: relative;">
+                                                        <canvas id="topContactsChart"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -275,7 +281,9 @@
                                             <div class="card">
                                                 <div class="card-header">En Uzun Görüşmeler</div>
                                                 <div class="card-body">
-                                                    <canvas id="longestCallsChart"></canvas>
+                                                    <div style="height: 300px; position: relative;">
+                                                        <canvas id="longestCallsChart"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -289,7 +297,9 @@
                                             <div class="card">
                                                 <div class="card-header">Arama Sürelerinin Dağılımı</div>
                                                 <div class="card-body">
-                                                    <canvas id="durationDistributionChart"></canvas>
+                                                    <div style="height: 300px; position: relative;">
+                                                        <canvas id="durationDistributionChart"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -308,7 +318,7 @@
                                     <div class="card">
                                         <div class="card-header">Arama Geçmişi Zaman Çizelgesi</div>
                                         <div class="card-body">
-                                            <div id="timelineContainer">
+                                            <div id="timelineContainer" style="max-height: 600px; overflow-y: auto;">
                                                 <!-- Dinamik olarak yüklenecek -->
                                             </div>
                                         </div>
