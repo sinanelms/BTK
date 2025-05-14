@@ -18,6 +18,11 @@ class FilterManager {
             rangeFilters: {}
         };
         
+        // Sayfalama değişkenleri
+        this.currentPage = 1;
+        this.pageSize = 25; // Varsayılan sayfa başına kayıt sayısı
+        this.totalPages = 1;
+        
         // DOM elemanları
         this.filterContainer = document.getElementById('dynamicFiltersContainer');
         this.searchInput = document.getElementById('searchInput');
@@ -28,6 +33,13 @@ class FilterManager {
         // Sonuç alanları
         this.productsTable = document.getElementById('productsTable');
         this.productsGrid = document.getElementById('productsGrid');
+        
+        // Sayfalama elemanları
+        this.pageSizeSelect = document.getElementById('pageSizeSelect');
+        this.prevPageButton = document.getElementById('prevPage');
+        this.nextPageButton = document.getElementById('nextPage');
+        this.currentPageSpan = document.getElementById('currentPage');
+        this.paginationInfoSpan = document.getElementById('paginationInfo');
         
         // Filtreleri başlat
         this.initializeFilters();
@@ -390,12 +402,14 @@ class FilterManager {
         // Arama fonksiyonu
         this.searchButton.addEventListener('click', () => {
             this.activeFilters.search = this.searchInput.value.trim().toLowerCase();
+            this.currentPage = 1; // Aramada ilk sayfaya dön
             this.applyFilters();
         });
         
         this.searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.activeFilters.search = this.searchInput.value.trim().toLowerCase();
+                this.currentPage = 1; // Aramada ilk sayfaya dön
                 this.applyFilters();
             }
         });
@@ -407,6 +421,34 @@ class FilterManager {
         this.sortSelect.addEventListener('change', () => {
             this.sortProducts(this.sortSelect.value);
         });
+        
+        // Sayfalama elemanları için olay dinleyicileri
+        if (this.pageSizeSelect) {
+            this.pageSizeSelect.addEventListener('change', () => {
+                const newPageSize = parseInt(this.pageSizeSelect.value);
+                this.pageSize = newPageSize;
+                this.currentPage = 1; // Sayfa boyutu değiştiğinde ilk sayfaya dön
+                this.applyFilters();
+            });
+        }
+        
+        if (this.prevPageButton) {
+            this.prevPageButton.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.renderProducts();
+                }
+            });
+        }
+        
+        if (this.nextPageButton) {
+            this.nextPageButton.addEventListener('click', () => {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.renderProducts();
+                }
+            });
+        }
     }
     
     /**

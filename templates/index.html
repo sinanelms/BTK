@@ -109,14 +109,24 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Arama Kayıtları</h5>
-                        <div class="dropdown">
-                            <select class="form-select" id="sortSelect">
-                                <option value="default">Listele/Sırala</option>
-                                <option value="date-asc">Tarih (Eskiden Yeniye)</option>
-                                <option value="date-desc">Tarih (Yeniden Eskiye)</option>
-                                <option value="duration-asc">Süre (Artan)</option>
-                                <option value="duration-desc">Süre (Azalan)</option>
-                            </select>
+                        <div class="d-flex gap-2">
+                            <div class="dropdown me-2">
+                                <select class="form-select" id="pageSizeSelect">
+                                    <option value="25">25 Kayıt</option>
+                                    <option value="50">50 Kayıt</option>
+                                    <option value="100">100 Kayıt</option>
+                                    <option value="0">Tümünü Göster</option>
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <select class="form-select" id="sortSelect">
+                                    <option value="default">Listele/Sırala</option>
+                                    <option value="date-asc">Tarih (Eskiden Yeniye)</option>
+                                    <option value="date-desc">Tarih (Yeniden Eskiye)</option>
+                                    <option value="duration-asc">Süre (Artan)</option>
+                                    <option value="duration-desc">Süre (Azalan)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -136,6 +146,30 @@
                                     <!-- Call records will be loaded here dynamically -->
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="pagination-info">
+                                <span id="paginationInfo">Gösteriliyor: 1-25 / 100</span>
+                            </div>
+                            <nav>
+                                <ul class="pagination">
+                                    <li class="page-item">
+                                        <button class="page-link" id="prevPage" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </button>
+                                    </li>
+                                    <li class="page-item">
+                                        <span class="page-link" id="currentPage">1</span>
+                                    </li>
+                                    <li class="page-item">
+                                        <button class="page-link" id="nextPage" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
