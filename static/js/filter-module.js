@@ -32,6 +32,9 @@ class FilterManager {
         // Filtreleri başlat
         this.initializeFilters();
         this.setupEventListeners();
+        
+        // Sayfa yüklendiğinde tüm kayıtları göster
+        this.renderProducts();
     }
     
     /**
