@@ -20,7 +20,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key")
 UPLOAD_FOLDER = 'uploads/pdf'
 ALLOWED_EXTENSIONS = {'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
 
 def allowed_file(filename):
     """Dosya uzantısının izin verilen tipte olup olmadığını kontrol eder."""
