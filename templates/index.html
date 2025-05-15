@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}" id="dark-mode-style" disabled>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/filter-count.css') }}">
+    {% block styles %}{% endblock %}
 </head>
 <body>
     <div class="container-fluid">
@@ -27,6 +28,9 @@
                             <i class="fas fa-chart-bar me-1"></i> Analiz
                         </button>
                     </div>
+                    <a href="{{ url_for('pdf_upload') }}" class="btn btn-outline-success me-3" title="PDF Yükle">
+                        <i class="fas fa-file-pdf me-1"></i> PDF Yükle
+                    </a>
                     <button id="themeToggle" class="btn btn-outline-primary">
                         <i class="fas fa-moon" id="darkIcon"></i>
                         <i class="fas fa-sun d-none" id="lightIcon"></i>
@@ -35,6 +39,7 @@
             </div>
         </header>
 
+        {% block content %}
         <div class="row">
             <!-- Filters Sidebar -->
             <div class="col-md-3 col-lg-3 mb-4">
@@ -344,6 +349,7 @@
                 </div>
             </div>
         </div>
+        {% endblock %}
     </div>
 
     <!-- Template for call record card (hidden, used by JS) -->
@@ -394,5 +400,7 @@
     <script src="{{ url_for('static', filename='js/export.js') }}"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
 </body>
 </html>
