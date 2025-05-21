@@ -109,6 +109,63 @@ def pdf_upload():
     uploaded_pdfs = get_uploaded_pdfs()
     return render_template('pdf_upload.html', uploaded_pdfs=uploaded_pdfs)
 
+@app.route('/delete-file/<filename>', methods=['POST'])
+def delete_file_route(filename):
+    """Deletes a PDF and its corresponding CSV file."""
+    if request.method == 'POST':
+        # Sanitize the filename
+        safe_filename = secure_filename(filename)
+        if safe_filename != filename: # Check if secure_filename altered the name (e.g. removed path components)
+            logging.warning(f"Filename sanitation changed '{filename}' to '{safe_filename}'. Aborting deletion for safety.")
+            return jsonify({"success": False, "message": "Invalid filename."}), 400
+
+        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
+        csv_filename = safe_filename.rsplit('.', 1)[0] + '.csv'
+        csv_path = os.path.join(app.config['UPLOAD_FOLDER'], csv_filename)
+
+        pdf_deleted = False
+        csv_deleted = False
+        pdf_existed = False
+        csv_existed = False
+        messages = []
+
+        try:
+            if os.path.exists(pdf_path):
+                pdf_existed = True
+                os.remove(pdf_path)
+                pdf_deleted = True
+                messages.append(f"PDF file '{safe_filename}' deleted.")
+                logging.info(f"Deleted PDF file: {pdf_path}")
+            else:
+                messages.append(f"PDF file '{safe_filename}' not found.")
+                logging.warning(f"Attempted to delete non-existent PDF: {pdf_path}")
+
+            if os.path.exists(csv_path):
+                csv_existed = True
+                os.remove(csv_path)
+                csv_deleted = True
+                messages.append(f"CSV file '{csv_filename}' deleted.")
+                logging.info(f"Deleted CSV file: {csv_path}")
+            else:
+                messages.append(f"CSV file '{csv_filename}' not found.")
+                logging.warning(f"Attempted to delete non-existent CSV: {csv_path}")
+
+            if pdf_deleted or csv_deleted:
+                return jsonify({"success": True, "message": " ".join(messages)}), 200
+            elif not pdf_existed and not csv_existed: # Neither file existed
+                 return jsonify({"success": False, "message": f"Files '{safe_filename}' and '{csv_filename}' not found."}), 404
+            else: # One or both existed but deletion failed for some other reason (though os.remove would raise error)
+                return jsonify({"success": False, "message": "Error during deletion process. Check logs."}), 500
+
+        except Exception as e:
+            logging.error(f"Error deleting file '{safe_filename}' or '{csv_filename}': {e}")
+            import traceback
+            logging.error(traceback.format_exc())
+            return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+    else:
+        # Should not happen if route is correctly defined with methods=['POST']
+        return jsonify({"success": False, "message": "Method not allowed"}), 405
+
 @app.route('/use-pdf/<path:pdf_path>')
 def use_pdf(pdf_path):
     """
