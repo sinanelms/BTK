@@ -108,9 +108,12 @@
                                                         {% endif %}
                                                     </td>
                                                     <td>
-                                                        <a href="{{ url_for('use_pdf', pdf_path=pdf.path) }}" class="btn btn-sm btn-primary">
+                                                        <a href="{{ url_for('use_pdf', pdf_path=pdf.path) }}" class="btn btn-sm btn-primary me-1">
                                                             <i class="fas fa-table me-1"></i> Göster
                                                         </a>
+                                                        <button class="btn btn-danger btn-sm delete-pdf-btn" data-filename="{{ pdf.filename }}">
+                                                            <i class="fas fa-trash-alt me-1"></i> Sil
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 {% endfor %}
@@ -150,4 +153,54 @@
         }
     }
 </style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-pdf-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const filename = this.dataset.filename;
+            if (confirm(`'${filename}' dosyasını ve ilişkili CSV dosyasını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
+                fetch(`/delete-file/${filename}`, {
+                    method: 'POST',
+                    headers: {
+                        // 'Content-Type': 'application/json', // Not strictly needed for this POST if no body is sent
+                        // If you have CSRF tokens, add the header here:
+                        // 'X-CSRFToken': '{{ csrf_token() }}' // Example if using Flask-WTF
+                    }
+                })
+                .then(response => {
+                    // Check if response is ok (status in the range 200-299)
+                    if (!response.ok) {
+                        // Try to parse error body, otherwise throw generic error
+                        return response.json().then(errData => {
+                            throw new Error(errData.message || `Server responded with status ${response.status}`);
+                        }).catch(() => { // If error body is not JSON or empty
+                            throw new Error(`Server responded with status ${response.status}`);
+                        });
+                    }
+                    return response.json(); // Parse successful JSON response
+                })
+                .then(data => {
+                    if (data.success) {
+                        // alert(data.message); // Or use a more sophisticated notification system
+                        // For simplicity, reload the page to reflect changes
+                        location.reload();
+                    } else {
+                        // This else block might not be reached if errors are thrown above
+                        alert(`Error: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Deletion error:', error);
+                    alert(`Dosya silinirken bir hata oluştu: ${error.message}`);
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
