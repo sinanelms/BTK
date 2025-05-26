@@ -27,7 +27,7 @@ Bu proje, BTK (Bilgi Teknolojileri ve İletişim Kurumu) tarafından sağlanan t
 1. Projeyi klonlayın:
 ```bash
 git clone https://github.com/sinanelms/BTK.git
-cd btk-analiz-platformu
+cd BTK
 ```
 
 2. Gerekli Python paketlerini yükleyin:
